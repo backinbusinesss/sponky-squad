@@ -1,0 +1,180 @@
+<svg width="720" height="900" viewBox="0 0 720 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="nrSky" x1="360" y1="0" x2="360" y2="540" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#04050A"/>
+      <stop offset=".5" stop-color="#0A0E1E"/>
+      <stop offset=".82" stop-color="#141B34"/>
+      <stop offset="1" stop-color="#20284A"/>
+    </linearGradient>
+    <linearGradient id="nrRoad" x1="360" y1="530" x2="360" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B0D14"/>
+      <stop offset=".55" stop-color="#12141D"/>
+      <stop offset="1" stop-color="#1B1E2A"/>
+    </linearGradient>
+    <linearGradient id="nrBeam" x1="360" y1="612" x2="360" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E9FBFF" stop-opacity=".9"/>
+      <stop offset=".35" stop-color="#7FE9FF" stop-opacity=".3"/>
+      <stop offset="1" stop-color="#19E6FF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="nrStreakO" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#FF7A18" stop-opacity="0"/>
+      <stop offset=".45" stop-color="#FF7A18"/>
+      <stop offset="1" stop-color="#FFD8A8" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="nrStreakC" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#19E6FF" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#19E6FF"/>
+      <stop offset="1" stop-color="#BDF6FF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="nrStreakR" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#FF2F2F" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#FF2F2F"/>
+      <stop offset="1" stop-color="#FF9A9A" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="nrReflect" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#19E6FF" stop-opacity=".5"/>
+      <stop offset="1" stop-color="#19E6FF" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="nrFlare">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset=".35" stop-color="#D8F8FF" stop-opacity=".9"/>
+      <stop offset="1" stop-color="#19E6FF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="nrHaze">
+      <stop stop-color="#FF7A18" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#FF7A18" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="nrVignette">
+      <stop offset=".55" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000000" stop-opacity=".72"/>
+    </radialGradient>
+    <filter id="nrBlur18" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+    <filter id="nrBlur8" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
+    <filter id="nrBlur3" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="3"/>
+    </filter>
+  </defs>
+
+  <!-- cielo notturno -->
+  <rect width="720" height="900" fill="url(#nrSky)"/>
+  <g fill="#EAF6FF">
+    <circle cx="90" cy="70" r="1.6" opacity=".8"/>
+    <circle cx="240" cy="120" r="1.2" opacity=".55"/>
+    <circle cx="410" cy="60" r="1.5" opacity=".7"/>
+    <circle cx="560" cy="140" r="1.2" opacity=".5"/>
+    <circle cx="655" cy="72" r="1.7" opacity=".8"/>
+    <circle cx="150" cy="190" r="1.1" opacity=".4"/>
+    <circle cx="620" cy="230" r="1.3" opacity=".45"/>
+  </g>
+
+  <!-- foschia orizzonte -->
+  <ellipse cx="360" cy="528" rx="430" ry="80" fill="url(#nrHaze)" filter="url(#nrBlur18)"/>
+
+  <!-- skyline -->
+  <g fill="#06070D">
+    <path d="M0 530V382H54V340H96V406H150V318H196V362H246V420H300V352H352V396H406V330H456V376H516V300H560V356H614V412H664V366H720V530Z"/>
+  </g>
+  <g fill="#0A0C15">
+    <path d="M0 530V440H70V470H126V418H188V462H260V430H330V474H400V436H470V478H546V442H616V480H690V448H720V530Z"/>
+  </g>
+  <!-- finestre -->
+  <g>
+    <g fill="#FFC978" opacity=".85">
+      <rect x="160" y="332" width="7" height="10"/>
+      <rect x="176" y="332" width="7" height="10"/>
+      <rect x="160" y="352" width="7" height="10"/>
+      <rect x="524" y="314" width="7" height="10"/>
+      <rect x="540" y="314" width="7" height="10"/>
+      <rect x="524" y="334" width="7" height="10"/>
+      <rect x="414" y="344" width="7" height="10"/>
+      <rect x="430" y="344" width="7" height="10"/>
+      <rect x="80" y="354" width="7" height="10"/>
+      <rect x="672" y="380" width="7" height="10"/>
+    </g>
+    <g fill="#7FE9FF" opacity=".8">
+      <rect x="106" y="420" width="6" height="9"/>
+      <rect x="206" y="376" width="6" height="9"/>
+      <rect x="310" y="366" width="6" height="9"/>
+      <rect x="466" y="390" width="6" height="9"/>
+      <rect x="572" y="426" width="6" height="9"/>
+      <rect x="270" y="444" width="6" height="9"/>
+      <rect x="626" y="456" width="6" height="9"/>
+    </g>
+  </g>
+
+  <!-- insegne al neon -->
+  <g filter="url(#nrBlur8)" opacity=".9">
+    <rect x="86" y="396" width="86" height="34" rx="7" stroke="#19E6FF" stroke-width="4"/>
+    <rect x="546" y="352" width="66" height="44" rx="7" stroke="#FF7A18" stroke-width="4"/>
+    <rect x="416" y="428" width="104" height="26" rx="6" stroke="#FF2F2F" stroke-width="4"/>
+  </g>
+  <g fill="none" stroke-width="3">
+    <rect x="86" y="396" width="86" height="34" rx="7" stroke="#19E6FF"/>
+    <rect x="546" y="352" width="66" height="44" rx="7" stroke="#FF7A18"/>
+    <rect x="416" y="428" width="104" height="26" rx="6" stroke="#FF2F2F"/>
+  </g>
+
+  <!-- strada bagnata -->
+  <path d="M332 530H392L770 900H-50Z" fill="url(#nrRoad)"/>
+  <!-- riflesso laterali -->
+  <path d="M334 532H342L74 900H-6Z" fill="url(#nrReflect)" opacity=".5"/>
+  <path d="M384 532H392L726 900H656Z" fill="url(#nrReflect)" opacity=".35"/>
+  <!-- bordi corsia -->
+  <path d="M334 534L60 900H22L330 534Z" fill="#EAF6FF" opacity=".2"/>
+  <path d="M390 534L700 900H664L392 534Z" fill="#EAF6FF" opacity=".16"/>
+  <!-- asse centrale -->
+  <g fill="#EAF6FF" opacity=".5">
+    <path d="M356 566h10l4 34h-18Z"/>
+    <path d="M352 636h18l6 44h-30Z"/>
+    <path d="M346 718h30l8 56h-46Z"/>
+    <path d="M336 812h46l10 72h-66Z"/>
+  </g>
+
+  <!-- rifletti al neon sul bagnato -->
+  <g filter="url(#nrBlur8)" opacity=".7">
+    <rect x="120" y="640" width="16" height="220" fill="#19E6FF" opacity=".45"/>
+    <rect x="576" y="600" width="20" height="260" fill="#FF7A18" opacity=".5"/>
+    <rect x="470" y="700" width="12" height="180" fill="#FF2F2F" opacity=".4"/>
+    <rect x="238" y="740" width="10" height="160" fill="#EAF6FF" opacity=".3"/>
+  </g>
+
+  <!-- scie di luce in lunga esposizione -->
+  <g>
+    <rect x="40" y="466" width="300" height="9" rx="4.5" fill="url(#nrStreakO)" filter="url(#nrBlur3)"/>
+    <rect x="360" y="494" width="330" height="7" rx="3.5" fill="url(#nrStreakC)" filter="url(#nrBlur3)"/>
+    <rect x="120" y="516" width="240" height="6" rx="3" fill="url(#nrStreakR)" filter="url(#nrBlur3)"/>
+    <rect x="-30" y="700" width="330" height="14" rx="7" fill="url(#nrStreakO)" filter="url(#nrBlur8)" opacity=".8"/>
+    <rect x="450" y="760" width="340" height="14" rx="7" fill="url(#nrStreakR)" filter="url(#nrBlur8)" opacity=".75"/>
+  </g>
+
+  <!-- faro della moto in avvicinamento -->
+  <path d="M344 616L376 616L560 900H170Z" fill="url(#nrBeam)"/>
+  <g>
+    <!-- ruota anteriore -->
+    <ellipse cx="360" cy="648" rx="27" ry="33" fill="#05060B"/>
+    <!-- carena -->
+    <path d="M330 604C334 578 344 566 360 566C376 566 386 578 390 604L386 638C376 630 368 626 360 626C352 626 344 630 334 638Z" fill="#05060B"/>
+    <!-- manubrio e specchietti -->
+    <path d="M316 596H404" stroke="#05060B" stroke-width="9" stroke-linecap="round"/>
+    <path d="M312 586l14 6M408 586l-14 6" stroke="#05060B" stroke-width="8" stroke-linecap="round"/>
+    <!-- casco -->
+    <path d="M360 542C371 542 379 551 379 562C379 570 374 576 367 579H353C346 576 341 570 341 562C341 551 349 542 360 542Z" fill="#08090F"/>
+    <path d="M347 556C351 551 356 549 360 549C365 549 369 551 373 556" stroke="#7FE9FF" stroke-width="3" stroke-linecap="round" opacity=".7"/>
+    <!-- fari -->
+    <circle cx="345" cy="610" r="10" fill="url(#nrFlare)"/>
+    <circle cx="375" cy="610" r="10" fill="url(#nrFlare)"/>
+    <rect x="270" y="605" width="180" height="5" rx="2.5" fill="#DFF9FF" opacity=".75" filter="url(#nrBlur3)"/>
+    <!-- luce ambientale attorno -->
+    <circle cx="360" cy="610" r="70" fill="#BDF6FF" opacity=".22" filter="url(#nrBlur18)"/>
+    <!-- doppia lascia di coda -->
+    <path d="M336 668C320 676 306 684 292 696" stroke="#FF7A18" stroke-width="6" stroke-linecap="round" opacity=".65" filter="url(#nrBlur3)"/>
+    <path d="M384 668C400 676 414 684 428 696" stroke="#FF2F2F" stroke-width="6" stroke-linecap="round" opacity=".65" filter="url(#nrBlur3)"/>
+  </g>
+
+  <!-- vignettatura -->
+  <rect width="720" height="900" fill="url(#nrVignette)"/>
+</svg>

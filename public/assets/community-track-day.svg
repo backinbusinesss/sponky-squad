@@ -1,0 +1,127 @@
+<svg width="720" height="900" viewBox="0 0 720 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="tdSky" x1="360" y1="0" x2="360" y2="560" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#07070E"/>
+      <stop offset=".45" stop-color="#171027"/>
+      <stop offset=".74" stop-color="#5A1F1C"/>
+      <stop offset=".92" stop-color="#C75317"/>
+      <stop offset="1" stop-color="#FF8A3D"/>
+    </linearGradient>
+    <linearGradient id="tdTrack" x1="360" y1="560" x2="360" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#17161C"/>
+      <stop offset="1" stop-color="#232228"/>
+    </linearGradient>
+    <linearGradient id="tdGlow" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#FF7A18" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#FFB067"/>
+      <stop offset="1" stop-color="#FF7A18" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="tdRim" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#FFD9A0"/>
+      <stop offset="1" stop-color="#FF7A18"/>
+    </linearGradient>
+    <radialGradient id="tdSun">
+      <stop stop-color="#FFF3D6"/>
+      <stop offset=".4" stop-color="#FFC178" stop-opacity=".85"/>
+      <stop offset="1" stop-color="#FF7A18" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="tdVignette">
+      <stop offset=".5" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000" stop-opacity=".72"/>
+    </radialGradient>
+    <filter id="tdBlur20" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="20"/>
+    </filter>
+    <filter id="tdBlur8" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
+    <filter id="tdBlur3" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="3"/>
+    </filter>
+  </defs>
+
+  <!-- cielo al tramonto -->
+  <rect width="720" height="900" fill="url(#tdSky)"/>
+  <circle cx="470" cy="548" r="150" fill="url(#tdSun)" filter="url(#tdBlur20)"/>
+  <circle cx="470" cy="556" r="46" fill="#FFEBC6" opacity=".95"/>
+
+  <!-- nubi -->
+  <g filter="url(#tdBlur8)" opacity=".55">
+    <path d="M-40 250C60 218 180 246 268 226C340 210 392 236 470 224C560 210 640 236 760 214L760 300H-40Z" fill="#241A33"/>
+    <path d="M-40 360C70 336 160 366 264 344C368 322 452 356 560 336C640 322 700 344 760 334L760 410H-40Z" fill="#3A1E2E"/>
+    <path d="M-40 452C90 430 210 456 330 440C450 424 560 452 760 434L760 490H-40Z" fill="#6B2C22"/>
+  </g>
+
+  <!-- colline lontane -->
+  <path d="M0 566C86 540 150 552 222 538C304 522 356 546 432 536C520 524 596 548 720 528V606H0Z" fill="#241423" opacity=".95"/>
+  <path d="M0 596C110 574 210 592 318 578C436 562 540 586 720 566V626H0Z" fill="#170E19"/>
+
+  <!-- asfalto della pista -->
+  <path d="M-60 900V742C120 706 268 690 430 646C540 616 632 590 780 578V900Z" fill="url(#tdTrack)"/>
+  <!-- cordoli sinistri -->
+  <path d="M-60 748C120 712 268 696 430 652C540 622 632 596 780 584" stroke="#E23A2C" stroke-width="12" stroke-dasharray="34 30"/>
+  <path d="M-60 748C120 712 268 696 430 652C540 622 632 596 780 584" stroke="#F2F4F8" stroke-width="12" stroke-dasharray="34 30" stroke-dashoffset="34"/>
+  <!-- cordoli destri -->
+  <path d="M-60 884C150 844 320 826 500 780C610 752 690 736 780 726" stroke="#E23A2C" stroke-width="12" stroke-dasharray="34 30" opacity=".85"/>
+  <path d="M-60 884C150 844 320 826 500 780C610 752 690 736 780 726" stroke="#F2F4F8" stroke-width="12" stroke-dasharray="34 30" stroke-dashoffset="34" opacity=".85"/>
+  <!-- asse centrale -->
+  <path d="M-40 828C170 786 340 766 520 720C620 694 690 680 770 672" stroke="#EAF6FF" stroke-width="5" stroke-dasharray="46 54" opacity=".35"/>
+  <!-- segni di frenata -->
+  <g opacity=".5">
+    <path d="M150 806C196 798 244 786 292 772" stroke="#0B0B0E" stroke-width="9" stroke-linecap="round" filter="url(#tdBlur3)"/>
+    <path d="M196 836C244 826 292 814 342 798" stroke="#0B0B0E" stroke-width="9" stroke-linecap="round" filter="url(#tdBlur3)"/>
+  </g>
+
+  <!-- moto inclinata in curva -->
+  <g transform="translate(300 646) rotate(-24) scale(1.65)">
+    <!-- alone -->
+    <ellipse cx="0" cy="46" rx="86" ry="16" fill="#000" opacity=".55" filter="url(#tdBlur8)"/>
+    <!-- ruote -->
+    <g>
+      <circle cx="-56" cy="24" r="27" fill="#08080B"/>
+      <circle cx="-56" cy="24" r="14" fill="none" stroke="#3A3D46" stroke-width="4"/>
+      <circle cx="54" cy="24" r="27" fill="#08080B"/>
+      <circle cx="54" cy="24" r="14" fill="none" stroke="#3A3D46" stroke-width="4"/>
+    </g>
+    <!-- scocca -->
+    <path d="M-64 6C-58 -14 -38 -24 -14 -24L14 -30C34 -34 52 -26 62 -8L66 8C56 16 44 18 30 14L4 6C-12 0 -34 4 -50 14Z" fill="#0D0E13"/>
+    <path d="M-64 6C-58 -14 -38 -24 -14 -24L14 -30C34 -34 52 -26 62 -8" stroke="url(#tdRim)" stroke-width="4" stroke-linecap="round"/>
+    <!-- carena anteriore -->
+    <path d="M40 -30C54 -34 68 -28 76 -14L70 -4C60 -12 50 -14 42 -12Z" fill="#0D0E13"/>
+    <path d="M40 -30C54 -34 68 -28 76 -14" stroke="#FF7A18" stroke-width="4" stroke-linecap="round"/>
+    <!-- marmitta -->
+    <path d="M-46 20C-34 26 -20 28 -6 26" stroke="#2E313A" stroke-width="8" stroke-linecap="round"/>
+    <!-- pilota -->
+    <path d="M-16 -30C-14 -50 -2 -62 14 -62C30 -62 42 -52 44 -38L36 -26C24 -34 6 -34 -8 -26Z" fill="#0A0B10"/>
+    <path d="M-16 -30C-14 -50 -2 -62 14 -62C30 -62 42 -52 44 -38" stroke="#FFD9A0" stroke-width="3.4" stroke-linecap="round" opacity=".85"/>
+    <!-- casco -->
+    <circle cx="46" cy="-46" r="17" fill="#0A0B10"/>
+    <path d="M36 -54C41 -60 49 -62 56 -59" stroke="#7FE9FF" stroke-width="4" stroke-linecap="round" opacity=".85"/>
+    <!-- braccio -->
+    <path d="M32 -40C42 -36 52 -32 62 -24" stroke="#0A0B10" stroke-width="12" stroke-linecap="round"/>
+    <!-- ginocchio -->
+    <path d="M-4 -18C-12 -10 -18 -2 -22 8" stroke="#0A0B10" stroke-width="14" stroke-linecap="round"/>
+    <!-- fari -->
+    <circle cx="72" cy="-16" r="7" fill="#FFF3D6"/>
+    <circle cx="72" cy="-16" r="22" fill="#FFD9A0" opacity=".35" filter="url(#tdBlur8)"/>
+  </g>
+
+  <!-- scie di velocità -->
+  <g filter="url(#tdBlur8)">
+    <rect x="-40" y="596" width="330" height="12" rx="6" fill="url(#tdGlow)" opacity=".75"/>
+    <rect x="30" y="638" width="250" height="8" rx="4" fill="url(#tdGlow)" opacity=".55"/>
+    <rect x="440" y="676" width="330" height="10" rx="5" fill="url(#tdGlow)" opacity=".5"/>
+  </g>
+
+  <!-- fuliggine / particelle -->
+  <g fill="#FFB067">
+    <circle cx="120" cy="672" r="3" opacity=".7"/>
+    <circle cx="182" cy="704" r="2.4" opacity=".55"/>
+    <circle cx="86" cy="722" r="2" opacity=".45"/>
+    <circle cx="596" cy="716" r="2.6" opacity=".5"/>
+    <circle cx="654" cy="686" r="2" opacity=".4"/>
+  </g>
+
+  <!-- vignettatura -->
+  <rect width="720" height="900" fill="url(#tdVignette)"/>
+</svg>
