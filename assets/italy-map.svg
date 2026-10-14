@@ -1,0 +1,74 @@
+<svg width="820" height="520" viewBox="0 0 820 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="imBg" x1="0" y1="0" x2="820" y2="520" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#06070C"/>
+      <stop offset="1" stop-color="#0A0C14"/>
+    </linearGradient>
+    <linearGradient id="imLand" x1="200" y1="60" x2="560" y2="470" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1A2033"/>
+      <stop offset="1" stop-color="#0E1220"/>
+    </linearGradient>
+    <linearGradient id="imRoute" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#19E6FF"/>
+      <stop offset=".55" stop-color="#FF7A18"/>
+      <stop offset="1" stop-color="#FF2F2F"/>
+    </linearGradient>
+    <radialGradient id="imGlow" cx=".5" cy=".5" r=".5">
+      <stop stop-color="#FF7A18" stop-opacity=".4"/>
+      <stop offset="1" stop-color="#FF7A18" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="imBlur14" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+    <filter id="imBlur4" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="4"/>
+    </filter>
+    <clipPath id="imClip">
+      <rect width="820" height="520" rx="18"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#imClip)">
+    <rect width="820" height="520" fill="url(#imBg)"/>
+
+    <!-- griglia geografica -->
+    <g stroke="#FFFFFF" stroke-opacity=".05">
+      <path d="M0 65H820M0 130H820M0 195H820M0 260H820M0 325H820M0 390H820M0 455H820"/>
+      <path d="M68 0V520M136 0V520M204 0V520M272 0V520M340 0V520M408 0V520M476 0V520M544 0V520M612 0V520M680 0V520M748 0V520"/>
+    </g>
+
+    <!-- alone dietro lo stivale -->
+    <ellipse cx="410" cy="260" rx="280" ry="230" fill="url(#imGlow)" filter="url(#imBlur14)" opacity=".7"/>
+
+    <!-- ITALIA (contorni reali Natural Earth 50m) -->
+      <path d="M245.3 98.3L248.5 100.1L260.6 96.2L268.1 98.4L274.2 94.7L278.1 88.9L277.2 84.5L286.9 77.5L288 85.5L293.5 90.9L298.7 92.2L297.5 95.5L302.7 102.1L304.8 101.5L304.2 94.7L311.6 83.8L313.2 75.5L316.8 76L319.8 83.1L332 80.8L336.2 86.2L338.2 85.2L335 76L336.4 71.3L346.7 73.3L345.7 68.7L347.3 60.7L363.4 64.2L370.9 56.3L386.7 55.8L398.4 52L397.9 57.9L404.9 67.2L443.9 74.5L434.3 84.8L441.9 88.2L437.6 95.8L440.9 96.1L440.4 102.8L449.1 110.7L444.5 111.8L446.4 110.2L441.8 104.5L436.9 106.9L429.2 104.5L424 109.8L408.1 116.9L406.2 116.6L408 113.5L401.5 117.5L400 125.7L408.9 136.6L404.8 143.4L401.6 142L400.7 146.4L405.1 166.4L413.9 175.6L439.9 192.5L453.1 227.8L468.9 245.6L487.6 258L517.2 259.6L516.8 265.1L509.7 270.6L509.3 274.9L545.1 292.9L556.2 301.8L570.4 309.2L585.5 326.6L586.2 331.2L582 342.6L574.1 338L567.8 324.2L553.8 321.8L547.4 315.3L539.9 317.1L532.2 329.9L527.8 345.5L530.1 349.9L536.8 352.3L545.5 360.2L547.2 375.5L545 378.7L540.6 377.9L530.6 383.5L528.9 386.9L528.5 399.1L520.7 405.5L514 417.8L504.1 417.9L501.8 414.1L501.7 408.5L507 403.4L509.5 396.1L508.7 390.9L511.5 387L518.2 385.1L518.5 377.8L515.5 374.5L513 361.3L503.2 335.8L500 333.3L491.3 332.6L481.1 325.9L481 316.7L475.6 308.7L462.9 311.5L466.5 306.3L462 302.9L454.1 302.9L444.9 286L430.4 283.9L425.7 285.7L418.6 279.1L412.1 276.6L395.6 257.8L387.6 252.1L382.5 243.9L372.4 238.5L366.7 238.7L369.1 237.1L368.6 234L354.9 217.9L349.2 216.7L349.3 207.2L343.4 194.8L341.2 181.3L335.3 174.6L325.8 171.3L312.7 162.6L297.1 158.5L290.8 161.5L274.5 180.3L259.3 184.7L259 180.8L264.8 172L263.6 168.8L254.1 169.8L241.7 161.9L240 154.9L245.5 146.7L244.4 142.2L236.8 138.5L233.8 132.6L235.5 129.6L239.9 129.9L247 125.7L249 120.1L238.4 105.7L238.8 102.7L242.9 100.6Z" fill="url(#imLand)" stroke="#19E6FF" stroke-opacity=".6" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M499.7 406.7L489.5 424.1L485.5 437.2L486 442.1L489.4 445.7L487.7 447.1L491.4 453.3L486 461.9L485.9 468L469.3 464.4L457.1 451.4L450 451.5L428.1 436.3L412.4 431.7L406.3 422.7L409.6 413.4L415.2 408.2L420.2 414.1L427.8 407.9L431.7 407.8L446.5 416.2L467.9 413.7L476.3 408.8L486.1 409.4L497.4 403.8L501.4 404.8Z" fill="url(#imLand)" stroke="#19E6FF" stroke-opacity=".6" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M322.9 300.1L328.1 315.4L323.2 324.7L325.1 334.8L320.8 368.8L305.8 365.9L303.1 376.9L300.6 378.9L293.7 378.4L286.8 367.2L286.2 356.2L287.8 346.6L290.4 346.2L290.7 341.9L286.5 338.8L288.4 323.7L280 309.4L280.4 300.6L281 298.9L288.3 302L295.2 299.6L310.9 285.1L322.4 294.7L321.2 298.8Z" fill="url(#imLand)" stroke="#19E6FF" stroke-opacity=".6" stroke-width="2.5" stroke-linejoin="round"/>
+
+    <!-- rotta Torino > Milano > Bologna > Roma -->
+    <g>
+      <path d="M264.8 132.5L309.8 116.9L373.7 155.7L408.2 259.4" stroke="url(#imRoute)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" filter="url(#imBlur4)" opacity=".35"/>
+      <path d="M264.8 132.5L309.8 116.9L373.7 155.7L408.2 259.4" stroke="url(#imRoute)" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="11 13"/>
+      <path d="M408.2 259.4C348.2 273.4 367.1 341.4 307.1 333.4" stroke="#19E6FF" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="6 13" opacity=".6"/>
+    </g>
+
+    <!-- pulsazioni sui punti citta' -->
+      <circle cx="264.8" cy="132.5" r="15" fill="#EAF6FF" opacity=".28" filter="url(#imBlur4)"/>
+      <circle cx="309.8" cy="116.9" r="15" fill="#19E6FF" opacity=".28" filter="url(#imBlur4)"/>
+      <circle cx="373.7" cy="155.7" r="15" fill="#FF7A18" opacity=".28" filter="url(#imBlur4)"/>
+      <circle cx="408.2" cy="259.4" r="15" fill="#FF2F2F" opacity=".28" filter="url(#imBlur4)"/>
+      <circle cx="307.1" cy="333.4" r="15" fill="#EAF6FF" opacity=".28" filter="url(#imBlur4)"/>
+      <circle cx="334.4" cy="130.1" r="15" fill="#EAF6FF" opacity=".28" filter="url(#imBlur4)"/>
+
+    <!-- coordinate decorative -->
+    <g stroke="#FFFFFF" stroke-opacity=".16" stroke-width="2" stroke-linecap="round">
+      <path d="M40 40h26M40 40v26M780 480h-26M780 480v-26"/>
+    </g>
+    <g stroke="#19E6FF" stroke-opacity=".5" stroke-width="2" stroke-linecap="round">
+      <path d="M760 60v34M743 77h34"/>
+      <circle cx="760" cy="77" r="14" stroke-opacity=".35" fill="none"/>
+    </g>
+
+    <rect x=".5" y=".5" width="819" height="519" rx="17.5" stroke="#FFFFFF" stroke-opacity=".12"/>
+  </g>
+</svg>

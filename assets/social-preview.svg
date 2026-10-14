@@ -1,0 +1,12 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#050507"/>
+  <circle cx="210" cy="90" r="260" fill="#FF7A18" opacity=".22"/>
+  <circle cx="1010" cy="145" r="250" fill="#19E6FF" opacity=".18"/>
+  <path d="M0 485C190 420 365 407 525 446C700 488 835 489 1200 390V630H0V485Z" fill="#11131A"/>
+  <text x="80" y="238" fill="white" font-family="Impact, sans-serif" font-size="92">SPONKY SQUAD</text>
+  <text x="84" y="326" fill="#FF7A18" font-family="Arial, sans-serif" font-size="38" font-weight="700">La piattaforma per motociclisti</text>
+  <text x="86" y="386" fill="#D7DEE8" font-family="Arial, sans-serif" font-size="26">Tessera digitale gratuita, convenzioni, eventi e community.</text>
+  <circle cx="920" cy="388" r="88" stroke="#19E6FF" stroke-width="26"/>
+  <circle cx="1020" cy="388" r="88" stroke="#FF7A18" stroke-width="26"/>
+  <path d="M840 300H990L1060 360H930L840 300Z" fill="#FF2F2F"/>
+</svg>
