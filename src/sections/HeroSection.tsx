@@ -14,7 +14,37 @@ export function HeroSection() {
         </Suspense>
       </div>
       <div className="absolute inset-0 bg-gradient-to-b from-asphalt-950/20 via-asphalt-950/15 to-asphalt-950" />
-      <div className="absolute bottom-0 left-1/2 h-40 w-[140vw] -translate-x-1/2 bg-road-lines opacity-20 blur-[1px]" />
+      {/* Strada in prospettiva: nastro centrale con la corsia tratteggiata e
+          i marciapiedi che si allargano verso il basso. A tutta altezza e
+          senza sfumature sembrava un pannello, non un pavé. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute bottom-0 left-1/2 hidden h-44 w-[120vw] -translate-x-1/2 opacity-[.45] md:block"
+        style={{
+          transform: "translateX(-50%) perspective(220px) rotateX(58deg)",
+          transformOrigin: "bottom center",
+          maskImage: "linear-gradient(180deg, transparent 0%, #000 58%, #000 100%)",
+          WebkitMaskImage: "linear-gradient(180deg, transparent 0%, #000 58%, #000 100%)",
+          backgroundImage:
+            "linear-gradient(90deg, transparent 0 12%, rgba(255,255,255,.30) 12% 12.5%, transparent 12.5% 87.5%, rgba(255,255,255,.30) 87.5% 88%, transparent 88% 100%), linear-gradient(90deg, transparent 0 49.4%, rgba(255,255,255,.42) 49.4% 50.6%, transparent 50.6% 100%)",
+        }}
+      />
+      {/* corsia tratteggiata al centro, piu' stretta e sbiadita verso l'orizzonte */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute bottom-0 left-1/2 hidden h-44 w-[120vw] -translate-x-1/2 opacity-[.55] md:block"
+        style={{
+          transform: "translateX(-50%) perspective(220px) rotateX(58deg)",
+          transformOrigin: "bottom center",
+          maskImage: "linear-gradient(180deg, transparent 0%, #000 62%, #000 100%)",
+          WebkitMaskImage: "linear-gradient(180deg, transparent 0%, #000 62%, #000 100%)",
+          backgroundImage:
+            "repeating-linear-gradient(180deg, rgba(231,78,18,.85) 0 26px, transparent 26px 58px)",
+          backgroundSize: "3px 100%",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      />
       {/* Su schermi stretti la moto passa esattamente sotto il testo:
           questo scrim tiene il copy leggibile senza spegnere del tutto il 3D. */}
       <div className="absolute inset-0 bg-gradient-to-b from-asphalt-950/72 via-asphalt-950/52 to-asphalt-950/30 lg:hidden" />
