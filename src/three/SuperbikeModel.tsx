@@ -29,45 +29,10 @@ const MODEL_PATH = asset("/models/superbike.glb");
  * Testa e proporzioni: la testa e' l'elemento eroe della scena, quindi scala
  * piu' alta del corpo ridotto.
  */
-const HEAD_Y = 1.06;
-const HEAD_SCALE = 0.76;
-const PINK = "#f9adb9";
-const SNOUT = "#ff9aaf";
-const PINK_DARK = "#e07a8c";
-const LEATHER = "#221d26";
-const PANTS = "#1e1c22";
-const SILVER = "#c6cad2";
-const TEE = "#e6e4df";
 /** Raggio dell'elmetto: tenuto stretto sulla testa (0.5) per non far
  *  risaltare il bordo interno attorno al viso. */
-const CAP_R = 0.545;
-const CAP_OFFSET: [number, number, number] = [0, 0.02, -0.02];
 
 /** Capsule fra due punti: la fedel cio' che tiene insieme arti e falde. */
-function capsuleBetween(
-  a: [number, number, number],
-  b: [number, number, number],
-  radius: number,
-  props: { color: string; roughness?: number; metalness?: number },
-) {
-  const dx = b[0] - a[0];
-  const dy = b[1] - a[1];
-  const dz = b[2] - a[2];
-  const len = Math.hypot(dx, dy, dz);
-  const mid: [number, number, number] = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2];
-  const rx = Math.atan2(dz, dy);
-  const rz = Math.asin(THREE.MathUtils.clamp(-dx / len, -1, 1));
-  return (
-    <mesh position={mid} rotation={[rx, 0, rz]}>
-      <capsuleGeometry args={[radius, Math.max(len - 2 * radius, 0.01), 8, 16]} />
-      <meshStandardMaterial
-        color={props.color}
-        roughness={props.roughness ?? 0.45}
-        metalness={props.metalness ?? 0.15}
-      />
-    </mesh>
-  );
-}
 
 /**
  * Casco da aviatore con apertura del viso ad ARCO, non a finestra.
@@ -81,88 +46,6 @@ function capsuleBetween(
  * Convenzioni identiche a THREE.SphereGeometry (theta da +Y, phi da -X verso
  * +Z, uv con v capovolta), cosi' la scritta mappata sulla fronte si allinea.
  */
-function aviatorCapGeometry(
-  radius: number,
-  thetaFront: number,
-  thetaBack: number,
-  phiOpen: number,
-  widthSeg = 76,
-  heightSeg = 30,
-) {
-  const positions: number[] = [];
-  const uvs: number[] = [];
-  const indices: number[] = [];
-
-  const phiStart = Math.PI / 2 - Math.PI;
-  const phiLength = Math.PI * 2;
-  const stride = widthSeg + 1;
-
-  for (let iy = 0; iy <= heightSeg; iy += 1) {
-    const v = iy / heightSeg;
-    for (let ix = 0; ix <= widthSeg; ix += 1) {
-      const phi = phiStart + (ix / widthSeg) * phiLength;
-
-      // distanza angolare dal centro del viso (+Z, ovvero phi = pi/2)
-      const raw = phi - Math.PI / 2;
-      const delta = Math.abs(Math.atan2(Math.sin(raw), Math.cos(raw)));
-      const t = Math.min(delta / phiOpen, 1);
-      const thetaMax = thetaFront + (thetaBack - thetaFront) * (t * t * (3 - 2 * t));
-      const theta = v * thetaMax;
-
-      const sinTheta = Math.sin(theta);
-      positions.push(
-        -radius * Math.cos(phi) * sinTheta,
-        radius * Math.cos(theta),
-        radius * Math.sin(phi) * sinTheta,
-      );
-      uvs.push(ix / widthSeg, 1 - v);
-    }
-  }
-
-  for (let iy = 0; iy < heightSeg; iy += 1) {
-    for (let ix = 0; ix < widthSeg; ix += 1) {
-      const a = ix + stride * (iy + 1);
-      const b = ix + stride * iy;
-      const c = ix + 1 + stride * iy;
-      const d = ix + 1 + stride * (iy + 1);
-      indices.push(a, b, d, b, c, d);
-    }
-  }
-
-  const geometry = new THREE.BufferGeometry();
-  geometry.setIndex(indices);
-  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-  geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
-  geometry.computeVertexNormals();
-
-  /**
-   * Normali verso l'ESTERNO.
-   *
-   * Questo e' il motivo per cui il casco non si vedeva. L'ordine degli indici
-   * (a,b,d / b,c,d) e' quello di SphereGeometry, ma qui il raggio finale
-   * theta varia da colonna a colonna: dove la manica si apre il passo fra una
-   * riga e l'altra supera il passo orizzontale, il triangolo si inverte e
-   * computeVertexNormals legge la faccia come se guardasse dentro la sfera.
-   * FrontSide scarta allora la superficie esterna e del casco restava solo un
-   * filo ai lati, con la testa tutta rosa davanti.
-   *
-   * La correzione e' esplicita: ogni normale la si proietta sulla posizione,
-   * che per una sfera centrata nell'origine e' la normale geometrica esatta.
-   */
-  const pos = geometry.getAttribute("position");
-  const nor = geometry.getAttribute("normal") as THREE.BufferAttribute;
-  for (let i = 0; i < pos.count; i += 1) {
-    let x = pos.getX(i);
-    let y = pos.getY(i);
-    let z = pos.getZ(i);
-    const len = Math.hypot(x, y, z) || 1;
-    nor.setXYZ(i, x / len, y / len, z / len);
-  }
-  nor.needsUpdate = true;
-
-  geometry.computeBoundingSphere();
-  return geometry;
-}
 
 
 function HeroBikeAccents() {
