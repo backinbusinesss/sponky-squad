@@ -3,8 +3,9 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
 import { useAssetExists } from "@/hooks/useAssetExists";
+import { asset } from "@/lib/asset";
 
-const MODEL_PATH = "/models/superbike.glb";
+const MODEL_PATH = asset("/models/superbike.glb");
 
 /**
  * Sponky: il maialino della mascotte del sito, in sella.
@@ -26,7 +27,7 @@ function PigRider() {
   const eyeR = 0.2;
 
   return (
-    <group position={[-0.1, 0.46, -0.04]} rotation={[0.02, 0.18, -0.16]} scale={0.34}>
+    <group position={[-0.1, 0.6, 0.08]} rotation={[0.3, 0.18, -0.1]} scale={0.36}>
       {/* ===== GAMBE ===== */}
       {[-1, 1].map((side) => (
         <group key={`leg-${side}`}>
@@ -271,6 +272,7 @@ function PigRider() {
 function HeroBikeAccents() {
   return (
     <group>
+      {/* alone al suolo: suggeriscono la moto che "galleggia" sul neon */}
       <mesh position={[-0.52, -0.36, 0.74]} rotation={[Math.PI / 2, 0, 0]} scale={[1, 1, 0.08]}>
         <torusGeometry args={[0.34, 0.018, 10, 60]} />
         <meshBasicMaterial color="#e74e0f" transparent opacity={0.78} />
@@ -279,15 +281,72 @@ function HeroBikeAccents() {
         <torusGeometry args={[0.28, 0.016, 10, 60]} />
         <meshBasicMaterial color="#e74e0f" transparent opacity={0.54} />
       </mesh>
-      <RoundedBox args={[0.72, 0.16, 0.045]} radius={0.025} position={[0.16, 0.24, 0.52]} rotation={[0.12, -0.32, -0.04]}>
-        <meshStandardMaterial color="#e74e0f" emissive="#e74e0f" emissiveIntensity={0.5} roughness={0.28} metalness={0.48} />
+
+      {/* striscia luminosa sul carter: sottile e intensa, non un riquadro */}
+      <RoundedBox args={[0.62, 0.045, 0.028]} radius={0.018} position={[0.16, 0.2, 0.52]} rotation={[0.12, -0.32, -0.04]}>
+        <meshStandardMaterial
+          color="#ff7a18"
+          emissive="#ff6a00"
+          emissiveIntensity={2.6}
+          roughness={0.25}
+          metalness={0.3}
+        />
       </RoundedBox>
-      <RoundedBox args={[0.5, 0.2, 0.035]} radius={0.02} position={[0.48, 0.47, 0.31]} rotation={[0.04, -0.55, 0.1]}>
-        <meshStandardMaterial color="#f5f5f5" roughness={0.18} metalness={0.7} transparent opacity={0.82} />
+      {/* pannello scuro affumicato al posto della lastra bianca */}
+      <RoundedBox args={[0.46, 0.17, 0.03]} radius={0.018} position={[0.48, 0.47, 0.31]} rotation={[0.04, -0.55, 0.1]}>
+        <meshStandardMaterial
+          color="#0c0f15"
+          emissive="#0b2b34"
+          emissiveIntensity={0.5}
+          roughness={0.16}
+          metalness={0.85}
+        />
       </RoundedBox>
     </group>
   );
 }
+
+/**
+ * Gli pneumatici del modello sono dipinti arancioni dentro la texture
+ * (estetica "toy"). Questo override del fragment shader li riconosce
+ * (rosso dominante, blu basso, verde basso => non oro, non rosa) e li
+ * rimappe sulla gomma nera, tenendo la variazione di luminanza per non
+ * perdere il disegno della spalla e del battistrada.
+ */
+const TIRE_REMAP_CHUNK = `
+  #include <map_fragment>
+  {
+    vec3 src = diffuseColor.rgb;
+    float lum = dot(src, vec3(0.30, 0.59, 0.11));
+
+    // pneumatici: arancione saturo con quasi nessun blu
+    if (src.r > 0.30 && src.b < 0.09 && src.g < src.r * 0.38 && src.r > src.b + 0.20) {
+      float t = smoothstep(0.05, 0.55, lum);
+      diffuseColor.rgb = mix(vec3(0.008), vec3(0.042, 0.042, 0.050), t);
+    }
+    // pannelli salmone/rosa fuori palette -> grafite calda scura
+    else if (src.r > 0.45 && src.r > src.g * 1.35 && src.r > src.b * 1.5 && src.g > 0.18 && src.b > 0.14) {
+      float t = smoothstep(0.15, 0.75, lum);
+      diffuseColor.rgb = mix(vec3(0.026, 0.024, 0.028), vec3(0.085, 0.046, 0.046), t);
+    }
+    // rosa saturo (non il rosso brand, che ha il verde quasi nullo) -> grafite
+    else if (src.r > 0.50 && src.r > src.g * 1.8 && src.r > src.b * 1.8 && src.g > 0.05 && src.b > 0.06) {
+      float t = smoothstep(0.2, 0.8, lum);
+      diffuseColor.rgb = mix(vec3(0.024, 0.023, 0.027), vec3(0.080, 0.052, 0.052), t);
+    }
+    // marroni/cuoio e anelli ruota (né oro né grigio neutro) -> scuro
+    else if (src.r > 0.14 && src.r < 0.62 && src.g > src.b * 1.35 && src.g < src.r * 0.85 && src.b < 0.22) {
+      float t = smoothstep(0.06, 0.44, lum);
+      diffuseColor.rgb = mix(vec3(0.014, 0.014, 0.017), vec3(0.070, 0.070, 0.082), t);
+    }
+    // spruzzi e scritte chiari e neutri: riportati sul tono del pannello
+    // per non far sembrare la carena sporca di pennarello
+    else if (min(src.r, min(src.g, src.b)) > 0.24 &&
+             (max(max(src.r, src.g), src.b) - min(src.r, min(src.g, src.b))) < 0.13) {
+      diffuseColor.rgb *= 0.46;
+    }
+  }
+`;
 
 function applyHeroMaterials(scene: THREE.Object3D) {
   scene.traverse((object) => {
@@ -299,23 +358,62 @@ function applyHeroMaterials(scene: THREE.Object3D) {
     object.receiveShadow = false;
 
     const material = object.material;
+    const tune = (item: THREE.Material) => {
+      if (item instanceof THREE.MeshStandardMaterial) {
+        item.envMapIntensity = 1.1;
+        item.roughness = Math.max(item.roughness, 0.32);
+        item.metalness = Math.max(item.metalness, 0.18);
+      }
+
+      // ricolorazione pneumatici, applicata una sola volta per materiale
+      if (!item.userData.sponkyTires) {
+        item.userData.sponkyTires = true;
+        const previous = item.onBeforeCompile;
+        item.onBeforeCompile = (shader, renderer) => {
+          previous?.(shader, renderer);
+          if (shader.fragmentShader.includes("#include <map_fragment>")) {
+            shader.fragmentShader = shader.fragmentShader.replace(
+              "#include <map_fragment>",
+              TIRE_REMAP_CHUNK,
+            );
+          }
+        };
+        item.needsUpdate = true;
+      }
+    };
+
     if (Array.isArray(material)) {
-      material.forEach((item) => {
-        if (item instanceof THREE.MeshStandardMaterial) {
-          item.envMapIntensity = 1.1;
-          item.roughness = Math.max(item.roughness, 0.32);
-          item.metalness = Math.max(item.metalness, 0.18);
-        }
-      });
-    } else if (material instanceof THREE.MeshStandardMaterial) {
-      material.envMapIntensity = 1.1;
-      material.roughness = Math.max(material.roughness, 0.28);
-      material.metalness = Math.max(material.metalness, 0.18);
+      material.forEach(tune);
+    } else if (material) {
+      tune(material);
     }
   });
 }
 
-function RealSuperbike() {
+/**
+ * Posizione della moto in base alle dimensioni della scena.
+ * - desktop: spostata a destra, dietro le card, leggermente sopra il centro;
+ * - tablet/telefono: centrata e molto piu' piccola, alzata verso la prima
+ *   schermata, per non finire tagliata fuori dal bordo destro.
+ */
+type Placement = { position: [number, number, number]; scale: number; rotY: number };
+
+function useBikePlacement(): Placement {
+  const width = useThree((state) => state.size.width);
+  return useMemo(() => {
+    if (width < 640) {
+      // telefono stretto
+      return { position: [0.02, 0.78, -0.35], scale: 0.7, rotY: -0.6 };
+    }
+    if (width < 1024) {
+      // tablet / telefono grande
+      return { position: [0.1, 0.7, -0.3], scale: 0.86, rotY: -0.66 };
+    }
+    return { position: [1.5, 0.26, 0], scale: 1.26, rotY: -0.72 };
+  }, [width]);
+}
+
+function RealSuperbike({ place }: { place: Placement }) {
   const gltf = useGLTF(MODEL_PATH);
   const scene = useMemo(() => {
     const clone = gltf.scene.clone(true);
@@ -327,7 +425,7 @@ function RealSuperbike() {
   }, [gltf.scene]);
 
   return (
-    <group scale={1.32} rotation={[0, -0.72, 0]} position={[1.72, -0.48, 0]}>
+    <group scale={place.scale} rotation={[0, place.rotY, 0]} position={place.position}>
       <primitive object={scene} />
       <HeroBikeAccents />
       <PigRider />
@@ -398,6 +496,7 @@ export function SuperbikeModel() {
   const group = useRef<THREE.Group>(null);
   const { mouse } = useThree();
   const modelExists = useAssetExists(MODEL_PATH);
+  const place = useBikePlacement();
 
   useFrame((state) => {
     if (!group.current) {
@@ -412,7 +511,7 @@ export function SuperbikeModel() {
   return (
     <Float speed={0.8} floatIntensity={0.1} rotationIntensity={0.06}>
       <group ref={group}>
-        {modelExists ? <RealSuperbike /> : <FallbackSuperbike />}
+        {modelExists ? <RealSuperbike place={place} /> : <FallbackSuperbike />}
       </group>
     </Float>
   );

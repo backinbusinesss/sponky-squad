@@ -55,22 +55,31 @@ function RoadPlane() {
 
 function DynamicLights() {
   const rim = useRef<THREE.PointLight>(null);
+  const cool = useRef<THREE.PointLight>(null);
 
   useFrame((state) => {
     if (rim.current) {
       rim.current.position.x = Math.sin(state.clock.elapsedTime * 0.7) * 2.6;
-      rim.current.intensity = 5.5 + Math.sin(state.clock.elapsedTime * 1.1) * 1.2;
+      rim.current.intensity = 6.5 + Math.sin(state.clock.elapsedTime * 1.1) * 1.6;
+    }
+    if (cool.current) {
+      cool.current.position.x = Math.cos(state.clock.elapsedTime * 0.55) * 2.2;
+      cool.current.intensity = 3.4 + Math.cos(state.clock.elapsedTime * 0.9) * 0.9;
     }
   });
 
   return (
     <>
-      <ambientLight intensity={0.58} />
-      <hemisphereLight args={["#ffffff", "#101010", 1.1]} />
-      <spotLight position={[0, 5, 4]} angle={0.5} penumbra={0.85} intensity={10} color="#ffffff" />
-      <pointLight ref={rim} position={[-3.2, 1.8, 1.6]} color="#e74e0f" intensity={4.2} distance={7} />
-      <pointLight position={[3.2, -0.2, 1.4]} color="#ffffff" intensity={2.4} distance={6} />
-      <pointLight position={[1.7, 0.8, 2.2]} color="#e74e0f" intensity={1.8} distance={4.5} />
+      {/* luce ambiente tenue: la scena resta buia e i neon spiccano */}
+      <ambientLight intensity={0.28} />
+      <hemisphereLight args={["#8ea6c4", "#0a0a0d", 0.55]} />
+      <spotLight position={[0, 5, 4]} angle={0.5} penumbra={0.85} intensity={8} color="#ffffff" />
+      {/* luce di contorno calda (arancio brand) */}
+      <pointLight ref={rim} position={[-3.2, 1.8, 1.6]} color="#e74e0f" intensity={6.5} distance={7.5} />
+      {/* luce di contorno fredda (cyan) sul lato opposto */}
+      <pointLight ref={cool} position={[3.2, 1.4, 1.8]} color="#25e6ff" intensity={3.4} distance={7} />
+      <pointLight position={[1.7, 0.8, 2.2]} color="#e74e0f" intensity={1.6} distance={4.5} />
+      <pointLight position={[-1.6, -0.4, 1.6]} color="#25e6ff" intensity={1.4} distance={4} />
     </>
   );
 }

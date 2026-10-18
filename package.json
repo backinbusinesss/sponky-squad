@@ -10,6 +10,7 @@
     "preview": "vite preview --host 0.0.0.0",
     "share": "node scripts/share.mjs",
     "share:dev": "node scripts/share.mjs --dev",
+    "deploy": "node scripts/deploy-pages.mjs",
     "cursor:preview": "node scripts/build-cursor-preview.mjs",
     "verify:cursor": "node scripts/verify-cursor.mjs"
   },

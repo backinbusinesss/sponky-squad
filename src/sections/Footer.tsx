@@ -1,4 +1,5 @@
 import { footerLinks } from "@/data/content";
+import { asset } from "@/lib/asset";
 
 export function Footer() {
   return (
@@ -6,7 +7,7 @@ export function Footer() {
       <div className="container flex flex-col gap-8 border-t border-white/10 pt-8 md:flex-row md:items-center md:justify-between">
         <div>
           <a href="#top" className="inline-flex items-center gap-3" data-cursor="accent">
-            <img src="/assets/sponky-logo-original.webp" alt="" className="h-10 w-10 rounded-full bg-white/8 object-contain p-2" />
+            <img src={asset("/assets/sponky-logo-original.webp")} alt="" className="h-10 w-10 rounded-full bg-white/8 object-contain p-2" />
             <span className="font-display text-3xl uppercase leading-none text-white">Sponky Squad</span>
           </a>
           <p className="mt-3 max-w-lg text-sm leading-6 text-white/48">

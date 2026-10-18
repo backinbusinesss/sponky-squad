@@ -15,6 +15,9 @@ export function HeroSection() {
       </div>
       <div className="absolute inset-0 bg-gradient-to-b from-asphalt-950/20 via-asphalt-950/15 to-asphalt-950" />
       <div className="absolute bottom-0 left-1/2 h-40 w-[140vw] -translate-x-1/2 bg-road-lines opacity-20 blur-[1px]" />
+      {/* Su schermi stretti la moto passa esattamente sotto il testo:
+          questo scrim tiene il copy leggibile senza spegnere del tutto il 3D. */}
+      <div className="absolute inset-0 bg-gradient-to-b from-asphalt-950/72 via-asphalt-950/52 to-asphalt-950/30 lg:hidden" />
 
       <div className="container relative z-10 grid min-h-[calc(94svh-7rem)] items-center gap-8 pb-16 pt-8 lg:grid-cols-[minmax(0,1fr)_25rem] xl:grid-cols-[minmax(0,1fr)_28rem]">
         <div className="max-w-3xl">
@@ -87,7 +90,7 @@ export function HeroSection() {
 
       <a
         href="#stats"
-        className="absolute bottom-5 left-1/2 z-20 hidden -translate-x-1/2 items-center gap-2 rounded-full border border-white/12 bg-white/8 px-4 py-2 text-xs font-bold uppercase text-white/58 backdrop-blur md:flex"
+        className="absolute bottom-5 left-1/2 z-20 hidden -translate-x-1/2 items-center gap-2 rounded-full border border-white/12 bg-white/8 px-4 py-2.5 text-xs font-bold uppercase text-white/58 backdrop-blur md:flex"
       >
         Scorri <ArrowDown className="h-3.5 w-3.5 animate-bounce" />
       </a>

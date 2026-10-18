@@ -50,15 +50,26 @@ export function TestimonialsSection() {
             </motion.div>
           </AnimatePresence>
 
-          <div className="mt-10 flex justify-center gap-2">
+          <div className="mt-10 flex justify-center gap-1">
             {testimonials.map((item, itemIndex) => (
               <button
                 key={item.author}
                 type="button"
                 aria-label={`Mostra testimonianza ${itemIndex + 1}`}
+                aria-current={itemIndex === index}
                 onClick={() => setIndex(itemIndex)}
-                className={`h-2.5 rounded-full transition ${itemIndex === index ? "w-10 bg-racing-orange" : "w-2.5 bg-white/24"}`}
-              />
+                className={`grid h-9 place-items-center rounded-full transition ${
+                  itemIndex === index ? "w-14" : "w-9"
+                }`}
+              >
+                {/* il bottone e' l'area di tocco (36px min): la pillolina
+                    resta piccola, altrimenti il carosello sembra un timer */}
+                <span
+                  className={`h-2.5 rounded-full transition ${
+                    itemIndex === index ? "w-full bg-racing-orange" : "w-2.5 bg-white/24"
+                  }`}
+                />
+              </button>
             ))}
           </div>
         </div>

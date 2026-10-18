@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { asset } from "@/lib/asset";
 
 export function Preloader() {
   const [visible, setVisible] = useState(true);
@@ -40,7 +41,7 @@ export function Preloader() {
               transition={{ duration: 0.85, ease: "easeOut" }}
             >
               <motion.img
-                src="/assets/sponky-logo-original.webp"
+                src={asset("/assets/sponky-logo-original.webp")}
                 alt=""
                 className="h-16 w-16 object-contain"
                 initial={{ scale: 0.72, filter: "blur(10px)" }}

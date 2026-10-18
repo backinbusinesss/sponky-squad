@@ -1,5 +1,6 @@
 import { BadgeCheck, QrCode } from "lucide-react";
 import { SectionHeader } from "@/components/SectionHeader";
+import { asset } from "@/lib/asset";
 
 export function DigitalCardSection() {
   return (
@@ -20,7 +21,7 @@ export function DigitalCardSection() {
                     <p className="text-xs font-extrabold uppercase tracking-normal text-asphalt-950/72">Sponky Card</p>
                     <p className="font-display text-5xl uppercase leading-none text-white">Digital pass</p>
                   </div>
-                  <img src="/assets/sponky-logo-original.webp" alt="" className="h-14 w-14 rounded-full bg-white/85 object-contain p-2" />
+                  <img src={asset("/assets/sponky-logo-original.webp")} alt="" className="h-14 w-14 rounded-full bg-white/85 object-contain p-2" />
                 </div>
                 <div>
                   <p className="text-sm font-bold uppercase tracking-normal text-white/68">Rider</p>

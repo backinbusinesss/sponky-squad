@@ -1,6 +1,7 @@
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { asset } from "@/lib/asset";
 import { navItems } from "@/data/content";
 import { cn } from "@/lib/utils";
 
@@ -25,7 +26,7 @@ export function SiteHeader() {
       <div className="container flex h-20 items-center justify-between gap-4">
         <a href="#top" className="group flex items-center gap-3" aria-label="Sponky Squad home" data-cursor="accent">
           <span className="grid h-11 w-11 place-items-center rounded-full border border-white/15 bg-white/8 shadow-neon">
-            <img src="/assets/sponky-logo-original.webp" alt="" className="h-7 w-7 object-contain" />
+            <img src={asset("/assets/sponky-logo-original.webp")} alt="" className="h-7 w-7 object-contain" />
           </span>
           <span className="font-display text-3xl leading-none text-white">Sponky Squad</span>
         </a>

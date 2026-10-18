@@ -112,7 +112,10 @@ export function FinalCTASection() {
               <Send className="h-4 w-4" />
               Iscriviti gratis
             </Button>
-            <a href="mailto:info@sponkysquad.it" className="selectable inline-flex items-center gap-2 text-sm font-bold text-white/58 hover:text-white">
+            <a
+              href="mailto:info@sponkysquad.it"
+              className="selectable inline-flex items-center gap-2 py-2.5 text-sm font-bold text-white/58 hover:text-white"
+            >
               <Mail className="h-4 w-4" />
               info@sponkysquad.it
             </a>

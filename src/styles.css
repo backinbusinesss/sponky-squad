@@ -35,7 +35,7 @@ body::before {
   pointer-events: none;
   content: "";
   opacity: 0.095;
-  background-image: url("/assets/noise.svg");
+  background-image: url("./assets/noise.svg");
   mix-blend-mode: screen;
 }
 
@@ -162,19 +162,37 @@ textarea {
     }
   }
 
+  /* Fiamma dello scarico quando la moto impenna sopra un interattivo. */
+  .cursor-exhaust {
+    transform-box: view-box;
+    transform-origin: 38px 41px;
+    animation: cursorFlame 0.14s ease-in-out infinite alternate;
+  }
+
+  @keyframes cursorFlame {
+    from {
+      transform: scaleX(0.82) scaleY(0.9);
+      opacity: 0.78;
+    }
+    to {
+      transform: scaleX(1.1) scaleY(1.06);
+      opacity: 1;
+    }
+  }
+
   /* Saluto dei motociclisti: le due dita distese oscillano come un ciao. */
   .cursor-salute-fingers {
     transform-box: view-box;
-    transform-origin: 29px 32px;
-    animation: cursorSaluteWave 0.26s ease-in-out infinite alternate;
+    transform-origin: 30px 34px;
+    animation: cursorSaluteWave 0.28s ease-in-out infinite alternate;
   }
 
   @keyframes cursorSaluteWave {
     from {
-      transform: rotate(-11deg);
+      transform: rotate(-13deg);
     }
     to {
-      transform: rotate(11deg);
+      transform: rotate(13deg);
     }
   }
 

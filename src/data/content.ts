@@ -1,4 +1,5 @@
 import { CalendarDays, CircleDollarSign, IdCard, MapPin, ShieldCheck, Sparkles, UsersRound } from "lucide-react";
+import { asset } from "@/lib/asset";
 
 export const navItems = [
   { label: "Come funziona", href: "#come-funziona" },
@@ -132,22 +133,22 @@ export const communityShots = [
   {
     title: "Night Pack",
     label: "Ride urbano",
-    src: "/assets/community-night-ride.svg",
+    src: asset("/assets/community-night-ride.svg"),
   },
   {
     title: "Track Day",
     label: "Cremona Circuit",
-    src: "/assets/community-track-day.svg",
+    src: asset("/assets/community-track-day.svg"),
   },
   {
     title: "Meet Point",
     label: "Partner ufficiali",
-    src: "/assets/community-meet.svg",
+    src: asset("/assets/community-meet.svg"),
   },
   {
     title: "Road Story",
     label: "Dolomiti",
-    src: "/assets/community-road.svg",
+    src: asset("/assets/community-road.svg"),
   },
 ];
 
@@ -199,12 +200,17 @@ export const footerLinks = [
   { label: "Note legali", href: "#footer" },
 ];
 
+/**
+ * Marker della mappa. `x`/`y` valgono sul layout largo; `cx`/`cy` sono la
+ * versione compatta per finestre strette: l'Italia e' solo ~314px larga e
+ * con le coordinate normali Torino, Milano e Bologna si sovrappongono.
+ */
 export const mapHighlights = [
-  { label: "Milano", x: "37.8%", y: "22.5%" },
-  { label: "Bologna", x: "45.6%", y: "30%" },
-  { label: "Roma", x: "49.8%", y: "49.9%" },
-  { label: "Sardegna", x: "37.4%", y: "64.1%" },
-  { label: "Torino", x: "32.3%", y: "25.5%" },
+  { label: "Milano", x: "37.8%", y: "22.5%", cx: "34%", cy: "13%" },
+  { label: "Bologna", x: "45.6%", y: "30%", cx: "62%", cy: "33%" },
+  { label: "Roma", x: "49.8%", y: "49.9%", cx: "54%", cy: "60%" },
+  { label: "Sardegna", x: "37.4%", y: "64.1%", cx: "8%", cy: "70%" },
+  { label: "Torino", x: "26.5%", y: "26%", cx: "8%", cy: "14%" },
 ];
 
 export { MapPin };
