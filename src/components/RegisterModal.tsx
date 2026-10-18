@@ -9,13 +9,10 @@ import { RIDING_STYLES, DISCOUNT_INTERESTS, AGE_RANGES, GROUP_NAMES, CARD_MIN, C
 /**
  * Modale di iscrizione.
  *
- * I campi sono quelli del vecchio form di sponkysquad.it: nome, cognome, email,
- * password, CAP, fascia d'eta', numero tessera personalizzabile, gruppo, stili di
- * guida, interessi e Privacy Policy. Non c'e' conferma email: la registrazione
+ * Campi e ordine identici al vecchio form di sponkysquad.it (form 174):
+ * Nome, Cognome, Email, Password, CAP, età, tessera, stili di guida,
+ * sconti, gruppo, newsletter, privacy. Non c'e' conferma email: la registrazione
  * autentica subito l'utente e lo porta su /account.
- *
- * Il numero tessera e' univoco: se e' gia' preso il server risponde 409 e il
- * campo viene evidenziato, perche' e' la scelta che l'utente deve rifare.
  */
 
 interface RegisterModalProps {
@@ -83,8 +80,6 @@ export function RegisterModal({ open, onClose, onSwitchToLogin }: RegisterModalP
   const cardNumber = Number(form.card_number);
   const cardValid = Number.isInteger(cardNumber) && cardNumber >= CARD_MIN && cardNumber <= CARD_MAX;
 
-  // verifica client-side minima: serve solo a non far partire una richiesta che
-  // il server rifiuterebbe comunque. La validazione vera resta lato server.
   const clientErrors = useMemo(() => {
     const list: Record<string, string> = {};
     if (form.first_name.trim().length < 2) list.first_name = "Inserisci il nome.";
@@ -113,7 +108,6 @@ export function RegisterModal({ open, onClose, onSwitchToLogin }: RegisterModalP
         card_number: cardNumber,
       });
       onClose();
-      // la registrazione autentica subito: porta su /account
       window.location.hash = "#/account";
     } catch (err) {
       if (err instanceof ApiError && err.errors && Object.keys(err.errors).length > 0) {
@@ -145,6 +139,7 @@ export function RegisterModal({ open, onClose, onSwitchToLogin }: RegisterModalP
         <p className="mt-1 text-sm text-white/55">La tessera Sponky Squad è gratuita. Bastano un minuto e zero sbattimenti.</p>
 
         <form onSubmit={handleSubmit} className="mt-6 grid gap-4" noValidate>
+          {/* Nome e Cognome */}
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Nome" error={errors.first_name}>
               <Input value={form.first_name} onChange={(e) => set("first_name", e.target.value)} className={field("first_name")} autoComplete="given-name" required />
@@ -154,10 +149,12 @@ export function RegisterModal({ open, onClose, onSwitchToLogin }: RegisterModalP
             </Field>
           </div>
 
+          {/* Email */}
           <Field label="Email" error={errors.email}>
             <Input type="email" value={form.email} onChange={(e) => set("email", e.target.value)} className={field("email")} autoComplete="email" required />
           </Field>
 
+          {/* Password e CAP */}
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Password" hint="Almeno 8 caratteri" error={errors.password}>
               <div className="relative">
@@ -172,6 +169,7 @@ export function RegisterModal({ open, onClose, onSwitchToLogin }: RegisterModalP
             </Field>
           </div>
 
+          {/* Età e Tessera */}
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Seleziona la tua età" error={errors.age_range}>
               <select
@@ -196,6 +194,23 @@ export function RegisterModal({ open, onClose, onSwitchToLogin }: RegisterModalP
             </Field>
           </div>
 
+          {/* Stili di guida */}
+          <CheckboxGroup
+            legend="Lo stile di motociclista che ti descrive meglio"
+            options={RIDING_STYLES}
+            selected={form.riding_styles}
+            onToggle={(v) => toggleIn("riding_styles", v)}
+          />
+
+          {/* Interessi per sconti */}
+          <CheckboxGroup
+            legend="Quali sconti ti interessano di più?"
+            options={DISCOUNT_INTERESTS}
+            selected={form.discount_interests}
+            onToggle={(v) => toggleIn("discount_interests", v)}
+          />
+
+          {/* Gruppo */}
           <Field label="Fai parte di un gruppo?">
             <select
               value={form.group_name}
@@ -208,19 +223,7 @@ export function RegisterModal({ open, onClose, onSwitchToLogin }: RegisterModalP
             </select>
           </Field>
 
-          <CheckboxGroup
-            legend="Stili di guida"
-            options={RIDING_STYLES}
-            selected={form.riding_styles}
-            onToggle={(v) => toggleIn("riding_styles", v)}
-          />
-          <CheckboxGroup
-            legend="Interessi per gli sconti"
-            options={DISCOUNT_INTERESTS}
-            selected={form.discount_interests}
-            onToggle={(v) => toggleIn("discount_interests", v)}
-          />
-
+          {/* Newsletter */}
           <label className="flex items-start gap-3 text-sm text-white/70">
             <input
               type="checkbox"
@@ -228,9 +231,10 @@ export function RegisterModal({ open, onClose, onSwitchToLogin }: RegisterModalP
               onChange={(e) => set("newsletter", e.target.checked)}
               className="mt-0.5 h-4 w-4 accent-racing-orange"
             />
-            Voglio ricevere news su raduni, sconti ed eventi
+            Iscrivimi alla newsletter
           </label>
 
+          {/* Privacy Policy */}
           <label className={errors.privacy_accepted ? "rounded-lg border border-racing-orange/50 bg-racing-orange/10 p-3" : "flex items-start gap-3 text-sm text-white/70"}>
             <input
               type="checkbox"
@@ -239,7 +243,7 @@ export function RegisterModal({ open, onClose, onSwitchToLogin }: RegisterModalP
               className="mt-0.5 h-4 w-4 accent-racing-orange"
             />
             <span>
-              Ho letto e accetto la{" "}
+              Accetta la{" "}
               <a href="https://www.sponkysquad.it/wp-content/themes/foundation/documents/termini-condizioni-sponkyquad.pdf" target="_blank" rel="noopener noreferrer" className="font-bold text-racing-orange underline-offset-2 hover:underline">
                 Privacy Policy
               </a>
