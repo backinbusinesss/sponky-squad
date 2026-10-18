@@ -13,113 +13,345 @@ const MODEL_PATH = asset("/models/superbike.glb");
  * musetto rosa, casco nero lucido con banda bianca/rossa e gocciolini,
  * occhiali sul casco, orecchie che spuntano, giubbotto in pelle con
  * t-shirt a righe rosse/bianche.
+ *
+ * Posa: "tuck" da corsa — tronco inclinato in avanti, zampe anteriori
+ * POGGIATE SUL MANUBRIO (presa reale sui grip) e stivali sulle pedane.
+ * Giacca LUNGA in pelle: gonnella che arriva sotto i fianchi piu' due
+ * falde laterali e una centrale che svolazzano all'indietro (vento),
+ * foderate di rosso racing. Sciarpa rossa al vento.
+ *
+ * Il gruppo e' costruito direttamente in coordinate LOCALI della moto
+ * (moto centerata, fronte = +Z):
+ *   grip manubrio  ~ (+-0.47, 0.50, 0.56)
+ *   sella          ~ (0, 0.40, -0.13)
+ *   pedane         ~ (+-0.35, -0.07, -0.31)
  */
 const PINK = "#f4a3ac";
 const PINK_LIGHT = "#ffc2c9";
 const PINK_DARK = "#d97986";
 const BLACK_LEATHER = "#15161c";
+const PANTS = "#1b1d24";
 const HELMET_BLACK = "#0d0e13";
 const RACING_RED = "#d8232a";
 const RACING_WHITE = "#f2f4f8";
 
+/** Capsule fra due punti: la fedel cio' che tiene insieme arti e falde. */
+function capsuleBetween(
+  a: [number, number, number],
+  b: [number, number, number],
+  radius: number,
+  props: { color: string; roughness?: number; metalness?: number },
+) {
+  const dx = b[0] - a[0];
+  const dy = b[1] - a[1];
+  const dz = b[2] - a[2];
+  const len = Math.hypot(dx, dy, dz);
+  const mid: [number, number, number] = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2];
+  const rx = Math.atan2(dz, dy);
+  const rz = Math.asin(THREE.MathUtils.clamp(-dx / len, -1, 1));
+  return (
+    <mesh position={mid} rotation={[rx, 0, rz]}>
+      <capsuleGeometry args={[radius, Math.max(len - 2 * radius, 0.01), 8, 16]} />
+      <meshStandardMaterial
+        color={props.color}
+        roughness={props.roughness ?? 0.45}
+        metalness={props.metalness ?? 0.15}
+      />
+    </mesh>
+  );
+}
+
 function PigRider() {
   const eyeL = -0.2;
   const eyeR = 0.2;
+  const tailSideL = useRef<THREE.Group>(null);
+  const tailSideR = useRef<THREE.Group>(null);
+  const tailCenter = useRef<THREE.Group>(null);
+  const scarfTip = useRef<THREE.Group>(null);
+
+  // falde e sciarpa al vento: moto che viaggia, tutto fluttera indietro
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    const flapA = Math.sin(t * 2.3);
+    const flapB = Math.sin(t * 2.9 + 1.4);
+    if (tailSideL.current) {
+      tailSideL.current.rotation.x = 1.6 + flapA * 0.1;
+    }
+    if (tailSideR.current) {
+      tailSideR.current.rotation.x = 1.6 + flapB * 0.1;
+    }
+    if (tailCenter.current) {
+      tailCenter.current.rotation.x = 1.75 + flapB * 0.08;
+    }
+    if (scarfTip.current) {
+      scarfTip.current.rotation.x = 0.35 + flapA * 0.1;
+      scarfTip.current.rotation.y = -0.25 + flapB * 0.08;
+    }
+  });
 
   return (
-    <group position={[-0.1, 0.6, 0.08]} rotation={[0.3, 0.18, -0.1]} scale={0.36}>
-      {/* ===== GAMBE ===== */}
-      {[-1, 1].map((side) => (
+    <group position={[0, 0.02, 0]} rotation={[0, 0, 0]} scale={1}>
+      {/* ===== GAMBE: ginocchia sul serbatoio, stivali sulle pedane ===== */}
+      {([-1, 1] as const).map((side) => (
         <group key={`leg-${side}`}>
-          {/* coscia */}
-          <mesh
-            position={[side * 0.24, 0.02, 0.22]}
-            rotation={[1.3, 0, side * 0.12]}
-            castShadow={false}
+          {/* coscia: fianco -> ginocchio (avanti, che abbraccia il serbatoio) */}
+          {capsuleBetween(
+            [side * 0.13, 0.4, -0.13],
+            [side * 0.31, 0.15, 0.05],
+            0.085,
+            { color: PANTS, roughness: 0.55, metalness: 0.1 },
+          )}
+          {/* ginocchio con paraginocchio */}
+          <mesh position={[side * 0.315, 0.15, 0.06]} scale={[1, 0.9, 1]}>
+            <sphereGeometry args={[0.078, 20, 16]} />
+            <meshStandardMaterial color="#0f1015" roughness={0.35} metalness={0.3} />
+          </mesh>
+          {/* stinco: ginocchio -> pedana */}
+          {capsuleBetween(
+            [side * 0.31, 0.13, 0.02],
+            [side * 0.345, -0.03, -0.27],
+            0.065,
+            { color: PANTS, roughness: 0.55, metalness: 0.1 },
+          )}
+          {/* stivale da corsa sulla pedana */}
+          <RoundedBox
+            args={[0.115, 0.1, 0.24]}
+            radius={0.03}
+            position={[side * 0.348, -0.062, -0.285]}
+            rotation={[0.06, side * -0.14, 0]}
           >
-            <capsuleGeometry args={[0.11, 0.28, 6, 14]} />
-            <meshStandardMaterial color={BLACK_LEATHER} roughness={0.5} metalness={0.12} />
-          </mesh>
-          {/* stinco */}
-          <mesh position={[side * 0.27, -0.17, 0.31]} rotation={[0.3, 0, 0]}>
-            <capsuleGeometry args={[0.1, 0.24, 6, 14]} />
-            <meshStandardMaterial color={BLACK_LEATHER} roughness={0.55} metalness={0.1} />
-          </mesh>
-          {/* stivale */}
-          <mesh position={[side * 0.28, -0.36, 0.27]} rotation={[0.1, side * 0.1, 0]}>
-            <boxGeometry args={[0.17, 0.15, 0.34]} />
-            <meshStandardMaterial color="#0a0b0f" roughness={0.4} metalness={0.25} />
-          </mesh>
-          <mesh position={[side * 0.28, -0.3, 0.31]} rotation={[0.1, side * 0.1, 0]}>
-            <boxGeometry args={[0.15, 0.05, 0.2]} />
+            <meshStandardMaterial color="#0a0b0f" roughness={0.42} metalness={0.22} />
+          </RoundedBox>
+          <mesh position={[side * 0.348, -0.02, -0.25]} rotation={[0.06, side * -0.14, 0]}>
+            <boxGeometry args={[0.12, 0.035, 0.07]} />
             <meshStandardMaterial color={RACING_RED} roughness={0.35} metalness={0.3} />
+          </mesh>
+          <mesh position={[side * 0.348, -0.112, -0.29]} rotation={[0.06, side * -0.14, 0]}>
+            <boxGeometry args={[0.118, 0.022, 0.24]} />
+            <meshStandardMaterial color="#05060a" roughness={0.6} />
           </mesh>
         </group>
       ))}
 
-      {/* ===== BUSTO: GIUBBOTTO IN PELLE ===== */}
-      <mesh position={[0, 0.1, 0]} scale={[0.4, 0.3, 0.34]}>
-        <sphereGeometry args={[1, 32, 24]} />
-        <meshStandardMaterial color={BLACK_LEATHER} roughness={0.42} metalness={0.18} />
+      {/* ===== GIACCA LUNGA: gonnella ampia che avvolge anche i fianchi della moto ===== */}
+      {/* pelle esterna */}
+      <mesh position={[0, 0.42, -0.24]} rotation={[0.34, 0, 0]}>
+        <cylinderGeometry args={[0.27, 0.52, 0.4, 30, 1, true, 0.94, 4.4]} />
+        <meshStandardMaterial color={BLACK_LEATHER} roughness={0.42} metalness={0.18} side={THREE.DoubleSide} />
       </mesh>
-      <mesh position={[0, 0.3, 0.02]} scale={[0.42, 0.38, 0.36]}>
-        <sphereGeometry args={[1, 32, 24]} />
+      {/* fodera rossa racing che sporge dal lembo */}
+      <mesh position={[0, 0.41, -0.243]} rotation={[0.34, 0, 0]}>
+        <cylinderGeometry args={[0.254, 0.498, 0.414, 30, 1, true, 0.94, 4.4]} />
+        <meshStandardMaterial color={RACING_RED} roughness={0.5} side={THREE.DoubleSide} />
+      </mesh>
+      {/* piping rosso sul lembo della giacca lunga */}
+      <mesh position={[0, 0.249, -0.31]} rotation={[0.34 + Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.51, 0.019, 8, 40, 4.4]} />
+        <meshStandardMaterial color={RACING_RED} roughness={0.45} emissive="#3d0507" emissiveIntensity={0.6} />
+      </mesh>
+
+      {/* fianchi/pelvi sotto la giacca */}
+      <mesh position={[0, 0.4, -0.13]} scale={[0.2, 0.15, 0.17]}>
+        <sphereGeometry args={[1, 24, 18]} />
+        <meshStandardMaterial color={PANTS} roughness={0.55} metalness={0.1} />
+      </mesh>
+
+      {/* ===== FALDE DELLA GIACCA AL VENTO: dalla vita indietro, sopra il codino ===== */}
+      {/* centrale: dal dorso del giubbotto, beccata dal vento verso l'alto */}
+      <group ref={tailCenter} position={[0, 0.5, -0.34]} rotation={[1.75, 0, 0]}>
+        <RoundedBox args={[0.2, 0.38, 0.04]} radius={0.016} position={[0, -0.19, 0]} rotation={[-0.1, 0, 0]}>
+          <meshStandardMaterial color={BLACK_LEATHER} roughness={0.44} metalness={0.16} />
+        </RoundedBox>
+        <RoundedBox args={[0.17, 0.32, 0.014]} radius={0.006} position={[0, -0.192, -0.026]} rotation={[-0.1, 0, 0]}>
+          <meshStandardMaterial color={RACING_RED} roughness={0.52} />
+        </RoundedBox>
+        <RoundedBox args={[0.17, 0.26, 0.034]} radius={0.014} position={[0, -0.45, 0.05]} rotation={[-0.5, 0, 0]}>
+          <meshStandardMaterial color={BLACK_LEATHER} roughness={0.44} metalness={0.16} />
+        </RoundedBox>
+        <RoundedBox args={[0.14, 0.22, 0.012]} radius={0.005} position={[0, -0.455, 0.025]} rotation={[-0.5, 0, 0]}>
+          <meshStandardMaterial color={RACING_RED} roughness={0.52} />
+        </RoundedBox>
+      </group>
+      {/* laterali: svolazzano fuori dai fianchi come un cappotto preso dal vento */}
+      {([-1, 1] as const).map((side) => (
+        <group
+          key={`tail-${side}`}
+          ref={side === -1 ? tailSideL : tailSideR}
+          position={[side * 0.2, 0.44, -0.3]}
+          rotation={[1.6, side * -0.22, side * 0.3]}
+        >
+          <RoundedBox args={[0.16, 0.4, 0.038]} radius={0.015} position={[0, -0.2, 0]} rotation={[0, 0, side * -0.08]}>
+            <meshStandardMaterial color={BLACK_LEATHER} roughness={0.44} metalness={0.16} />
+          </RoundedBox>
+          <RoundedBox args={[0.13, 0.34, 0.012]} radius={0.005} position={[0, -0.202, -0.026]} rotation={[0, 0, side * -0.08]}>
+            <meshStandardMaterial color={RACING_RED} roughness={0.52} />
+          </RoundedBox>
+          <RoundedBox args={[0.13, 0.24, 0.032]} radius={0.013} position={[side * 0.02, -0.49, 0.04]} rotation={[-0.4, 0, side * -0.15]}>
+            <meshStandardMaterial color={BLACK_LEATHER} roughness={0.44} metalness={0.16} />
+          </RoundedBox>
+        </group>
+      ))}
+
+      {/* ===== BUSTO: GIUBBOTTO IN PELLE (posa da corsa) ===== */}
+      {capsuleBetween([0, 0.4, -0.1], [0, 0.7, 0.18], 0.165, {
+        color: BLACK_LEATHER,
+        roughness: 0.42,
+        metalness: 0.18,
+      })}
+      {/* petto in avanti (tuck) */}
+      <mesh position={[0, 0.64, 0.12]} scale={[0.158, 0.132, 0.14]}>
+        <sphereGeometry args={[1, 28, 22]} />
         <meshStandardMaterial color={BLACK_LEATHER} roughness={0.4} metalness={0.2} />
       </mesh>
 
-      {/* t-shirt a righe (petto) */}
-      <mesh position={[0, 0.3, 0.3]} scale={[0.2, 0.24, 0.12]}>
-        <sphereGeometry args={[1, 24, 18]} />
-        <meshStandardMaterial color={RACING_WHITE} roughness={0.62} />
-      </mesh>
-      <mesh position={[0, 0.37, 0.404]}>
-        <boxGeometry args={[0.3, 0.06, 0.03]} />
-        <meshStandardMaterial color={RACING_RED} roughness={0.6} />
-      </mesh>
-      <mesh position={[0, 0.24, 0.408]}>
-        <boxGeometry args={[0.3, 0.06, 0.03]} />
-        <meshStandardMaterial color={RACING_RED} roughness={0.6} />
-      </mesh>
-      {/* zip del giubbotto */}
-      <mesh position={[0.17, 0.3, 0.33]} rotation={[0, 0, -0.1]}>
-        <boxGeometry args={[0.03, 0.42, 0.03]} />
-        <meshStandardMaterial color="#3a3d48" roughness={0.3} metalness={0.8} />
-      </mesh>
-
-      {/* ===== BRACCIA verso il manubrio ===== */}
-      {[-1, 1].map((side) => (
-        <group key={`arm-${side}`}>
-          <mesh position={[side * 0.34, 0.46, 0.06]}>
-            <sphereGeometry args={[0.15, 20, 16]} />
+      {/* fascione/petto: t-shirt a righe rosse/bianche scoperta */}
+      <group position={[0, 0.6, 0.1]} rotation={[0.9, 0, 0]}>
+        <mesh position={[0, 0.02, 0.112]} scale={[0.086, 0.092, 0.037]}>
+          <sphereGeometry args={[1, 24, 18]} />
+          <meshStandardMaterial color={RACING_WHITE} roughness={0.62} />
+        </mesh>
+        <mesh position={[0, 0.052, 0.146]}>
+          <boxGeometry args={[0.145, 0.026, 0.016]} />
+          <meshStandardMaterial color={RACING_RED} roughness={0.6} />
+        </mesh>
+        <mesh position={[0, -0.004, 0.15]}>
+          <boxGeometry args={[0.145, 0.026, 0.016]} />
+          <meshStandardMaterial color={RACING_RED} roughness={0.6} />
+        </mesh>
+        {/* asole della giacca ai lati della camicia */}
+        {([-1, 1] as const).map((side) => (
+          <mesh key={`lapel-${side}`} position={[side * 0.095, 0.01, 0.128]} rotation={[0, 0, side * -0.28]}>
+            <boxGeometry args={[0.055, 0.27, 0.028]} />
             <meshStandardMaterial color={BLACK_LEATHER} roughness={0.4} metalness={0.2} />
           </mesh>
-          <mesh
-            position={[side * 0.4, 0.34, 0.26]}
-            rotation={[1.18, 0, side * 0.26]}
+        ))}
+        {/* zip metallico */}
+        <mesh position={[0.062, -0.02, 0.142]}>
+          <boxGeometry args={[0.014, 0.24, 0.014]} />
+          <meshStandardMaterial color="#3a3d48" roughness={0.3} metalness={0.8} />
+        </mesh>
+        {/* pannello dorsale: righe racing sulla schiena */}
+        <mesh position={[0, 0.11, -0.158]}>
+          <boxGeometry args={[0.23, 0.045, 0.02]} />
+          <meshStandardMaterial color={RACING_RED} roughness={0.5} />
+        </mesh>
+        <mesh position={[0, 0.045, -0.162]}>
+          <boxGeometry args={[0.23, 0.026, 0.02]} />
+          <meshStandardMaterial color={RACING_WHITE} roughness={0.5} />
+        </mesh>
+      </group>
+
+      {/* cintura con fibbia al neon cyan */}
+      <mesh position={[0, 0.45, -0.06]} rotation={[-0.82, 0, 0]}>
+        <torusGeometry args={[0.198, 0.028, 10, 32, 4.6]} />
+        <meshStandardMaterial color="#0a0b0f" roughness={0.5} metalness={0.25} />
+      </mesh>
+      <RoundedBox args={[0.06, 0.045, 0.02]} radius={0.008} position={[0, 0.33, 0.1]} rotation={[0.9, 0, 0]}>
+        <meshStandardMaterial color="#0b3d47" emissive="#19e6ff" emissiveIntensity={1.1} roughness={0.3} metalness={0.5} />
+      </RoundedBox>
+
+      {/* ===== BRACCIA: le ZAMPE POGGIATE SUI GRIP DEL MANUBRIO ===== */}
+      {([-1, 1] as const).map((side) => (
+        <group key={`arm-${side}`}>
+          {/* spallaccio in pelle */}
+          <mesh position={[side * 0.2, 0.69, 0.13]} scale={[0.095, 0.085, 0.09]}>
+            <sphereGeometry args={[1, 22, 18]} />
+            <meshStandardMaterial color={BLACK_LEATHER} roughness={0.38} metalness={0.22} />
+          </mesh>
+          {/* omero: spalla -> gomito */}
+          {capsuleBetween(
+            [side * 0.21, 0.68, 0.15],
+            [side * 0.33, 0.57, 0.36],
+            0.06,
+            { color: BLACK_LEATHER, roughness: 0.44, metalness: 0.16 },
+          )}
+          {/* banda rossa sul braccio */}
+          {capsuleBetween(
+            [side * 0.295, 0.605, 0.3],
+            [side * 0.315, 0.585, 0.33],
+            0.063,
+            { color: RACING_RED, roughness: 0.45 },
+          )}
+          {/* avambraccio: gomito -> polso sul grip */}
+          {capsuleBetween(
+            [side * 0.33, 0.57, 0.36],
+            [side * 0.44, 0.515, 0.52],
+            0.052,
+            { color: BLACK_LEATHER, roughness: 0.44, metalness: 0.16 },
+          )}
+          {/* polsino rosso */}
+          {capsuleBetween(
+            [side * 0.415, 0.528, 0.485],
+            [side * 0.44, 0.515, 0.52],
+            0.056,
+            { color: RACING_RED, roughness: 0.45 },
+          )}
+          {/* guanto da corsa che AVVOLGE il grip */}
+          <RoundedBox
+            args={[0.1, 0.082, 0.125]}
+            radius={0.03}
+            position={[side * 0.462, 0.512, 0.56]}
+            rotation={[0.3, 0, side * -0.12]}
           >
-            <capsuleGeometry args={[0.095, 0.3, 6, 14]} />
-            <meshStandardMaterial color={BLACK_LEATHER} roughness={0.44} metalness={0.16} />
+            <meshStandardMaterial color="#0a0b0f" roughness={0.42} metalness={0.24} />
+          </RoundedBox>
+          {/* nocche rosse */}
+          <mesh position={[side * 0.462, 0.552, 0.552]} rotation={[0.3, 0, side * -0.12]}>
+            <boxGeometry args={[0.085, 0.02, 0.05]} />
+            <meshStandardMaterial color={RACING_RED} roughness={0.35} metalness={0.3} />
           </mesh>
-          {/* guanto */}
-          <mesh position={[side * 0.42, 0.2, 0.48]}>
-            <sphereGeometry args={[0.12, 18, 14]} />
+          {/* dita che passano sotto il grip */}
+          <mesh position={[side * 0.462, 0.468, 0.575]}>
+            <sphereGeometry args={[0.042, 16, 12]} />
             <meshStandardMaterial color="#0a0b0f" roughness={0.45} metalness={0.2} />
-          </mesh>
-          <mesh position={[side * 0.42, 0.24, 0.55]}>
-            <boxGeometry args={[0.16, 0.1, 0.06]} />
-            <meshStandardMaterial color={RACING_RED} roughness={0.4} />
           </mesh>
         </group>
       ))}
 
-      {/* ===== COLLARDO ===== */}
-      <mesh position={[0, 0.56, 0.02]} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[0.24, 0.07, 12, 32]} />
-        <meshStandardMaterial color={BLACK_LEATHER} roughness={0.5} metalness={0.14} />
+      {/* ===== COLLARLO + NUCA ===== */}
+      {capsuleBetween([0, 0.66, 0.12], [0, 0.78, 0.15], 0.078, { color: PINK, roughness: 0.58 })}
+      {/* gobba da corsa dietro le spalle */}
+      <mesh position={[0, 0.66, -0.02]} rotation={[0.6, 0, 0]} scale={[0.15, 0.11, 0.16]}>
+        <sphereGeometry args={[1, 24, 18]} />
+        <meshStandardMaterial color={BLACK_LEATHER} roughness={0.36} metalness={0.24} />
+      </mesh>
+      {/* colletto alto della giacca in pelle */}
+      <mesh position={[0, 0.73, 0.11]} rotation={[-0.28, 0, 0]}>
+        <torusGeometry args={[0.125, 0.045, 12, 32, Math.PI * 1.55]} />
+        <meshStandardMaterial color={BLACK_LEATHER} roughness={0.42} metalness={0.2} />
+      </mesh>
+      {/* passamontagna sotto il casco */}
+      <mesh position={[0, 0.78, 0.12]} rotation={[-0.2, 0, 0]}>
+        <torusGeometry args={[0.112, 0.036, 10, 28]} />
+        <meshStandardMaterial color="#101118" roughness={0.7} />
       </mesh>
 
-      {/* ===== TESTA ===== */}
-      <group position={[0, 0.95, 0.04]} rotation={[0.1, 0, 0]}>
+      {/* ===== SCIARPA ROSSA AL VENTO: anello al collo + nastri dietro ===== */}
+      <group position={[0, 0.74, 0.1]} rotation={[-0.35, 0, 0]}>
+        {/* anello attorno al collo */}
+        <mesh>
+          <torusGeometry args={[0.105, 0.038, 10, 26, Math.PI * 1.6]} />
+          <meshStandardMaterial color={RACING_RED} roughness={0.62} />
+        </mesh>
+        {/* nastro lungo che esce dalla nuca e vola indietro */}
+        <group ref={scarfTip} position={[0.05, 0.03, -0.09]} rotation={[0.5, -0.3, 0.12]}>
+          <RoundedBox args={[0.07, 0.035, 0.3]} radius={0.014} position={[0, 0, -0.13]}>
+            <meshStandardMaterial color={RACING_RED} roughness={0.62} />
+          </RoundedBox>
+          <RoundedBox args={[0.055, 0.028, 0.22]} radius={0.011} position={[0.015, -0.015, -0.36]} rotation={[0.35, 0.15, 0]}>
+            <meshStandardMaterial color="#b81c22" roughness={0.64} />
+          </RoundedBox>
+        </group>
+        {/* secondo nastro piu' corto, staccato sul lato */}
+        <group position={[-0.07, 0.02, -0.07]} rotation={[0.6, 0.35, -0.18]}>
+          <RoundedBox args={[0.05, 0.026, 0.2]} radius={0.01} position={[0, 0, -0.09]}>
+            <meshStandardMaterial color={RACING_RED} roughness={0.62} />
+          </RoundedBox>
+        </group>
+      </group>
+
+      {/* ===== TESTA (funko grande, in leggero tuck verso il manubrio) ===== */}
+      <group position={[0, 0.98, 0.2]} rotation={[0.14, 0, 0]} scale={0.4}>
         <mesh>
           <sphereGeometry args={[0.5, 40, 32]} />
           <meshStandardMaterial color={PINK} roughness={0.58} metalness={0.02} />
@@ -251,10 +483,10 @@ function PigRider() {
           />
         </mesh>
 
-        {/* fibbie del casco */}
+        {/* fibbie del casco (hanno il mento, non escono dalle guance) */}
         {[-1, 1].map((side) => (
-          <mesh key={`strap-${side}`} position={[side * 0.4, -0.3, 0.18]} rotation={[0.3, 0, side * 0.5]}>
-            <boxGeometry args={[0.07, 0.3, 0.05]} />
+          <mesh key={`strap-${side}`} position={[side * 0.3, -0.34, 0.16]} rotation={[0.45, 0, side * 0.35]}>
+            <boxGeometry args={[0.06, 0.22, 0.05]} />
             <meshStandardMaterial color="#101116" roughness={0.6} />
           </mesh>
         ))}

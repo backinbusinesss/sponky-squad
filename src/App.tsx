@@ -13,6 +13,7 @@ import { Footer } from "@/sections/Footer";
 import { HeroSection } from "@/sections/HeroSection";
 import { HowItWorksSection } from "@/sections/HowItWorksSection";
 import { PartnersSection } from "@/sections/PartnersSection";
+import { SocialLiveSection } from "@/sections/SocialLiveSection";
 import { StatsLiveSection } from "@/sections/StatsLiveSection";
 import { TestimonialsSection } from "@/sections/TestimonialsSection";
 
@@ -35,6 +36,7 @@ export default function App() {
         <PartnersSection />
         <EventsSection />
         <CommunitySection />
+        <SocialLiveSection />
         <TestimonialsSection />
         <FAQSection />
         <FinalCTASection />

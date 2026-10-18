@@ -109,6 +109,8 @@ export const events = [
     place: "Milano",
     tag: "Night ride",
     seats: 82,
+    // scena "Notte urbana", palette ciano: coerente con un giro serale in citta'
+    cover: "art-01",
     description: "Un giro serale tra luci urbane, pit stop partner e arrivo social.",
   },
   {
@@ -117,6 +119,8 @@ export const events = [
     place: "Passo della Cisa",
     tag: "Motogiro",
     seats: 120,
+    // scena "Strada di montagna", palette ghiaccio
+    cover: "art-04",
     description: "Curve, colazione condivisa e pranzo convenzionato per la squad.",
   },
   {
@@ -125,6 +129,8 @@ export const events = [
     place: "Cremona Circuit",
     tag: "Pista",
     seats: 48,
+    // scena "Curva in pista", palette arancio
+    cover: "art-02",
     description: "Briefing tecnico, turni in pista e contenuti foto/video per gli iscritti.",
   },
 ];
@@ -133,22 +139,22 @@ export const communityShots = [
   {
     title: "Night Pack",
     label: "Ride urbano",
-    src: asset("/assets/community-night-ride.svg"),
+    src: asset("/assets/community-art/ride-urbano.svg"),
   },
   {
     title: "Track Day",
     label: "Cremona Circuit",
-    src: asset("/assets/community-track-day.svg"),
+    src: asset("/assets/community-art/cremona-circuit.svg"),
   },
   {
     title: "Meet Point",
     label: "Partner ufficiali",
-    src: asset("/assets/community-meet.svg"),
+    src: asset("/assets/community-art/partner-ufficiali.svg"),
   },
   {
     title: "Road Story",
     label: "Dolomiti",
-    src: asset("/assets/community-road.svg"),
+    src: asset("/assets/community-art/dolomiti.svg"),
   },
 ];
 

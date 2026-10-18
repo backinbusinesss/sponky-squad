@@ -406,7 +406,9 @@ export function CustomCursor() {
     return null;
   }
 
-  const wheelie = hovering && !pressed;
+  // La moto continua a impennare anche mentre si preme: il saluto arriva
+  // sopra, le ruote restano sempre a vista.
+  const wheelie = hovering;
   const scale = pressed ? 1.2 : hovering ? 1.5 : 1;
 
   return (
@@ -443,8 +445,8 @@ export function CustomCursor() {
           className="absolute h-16 w-16"
           style={{ transformOrigin: "25% 73%" }}
           animate={{
-            opacity: pressed ? 0 : 1,
-            scale: pressed ? 0.4 : 1,
+            opacity: pressed ? 0.62 : 1,
+            scale: pressed ? 0.84 : 1,
             rotate: wheelie ? -19 : 0,
             y: wheelie ? -2 : 0,
           }}

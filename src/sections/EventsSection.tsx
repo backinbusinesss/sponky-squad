@@ -2,7 +2,9 @@ import { useMemo, useState } from "react";
 import { CalendarDays, Clock, MapPin } from "lucide-react";
 import { SectionHeader } from "@/components/SectionHeader";
 import { Button } from "@/components/ui/button";
+import { EventArtPicker } from "@/components/EventArtPicker";
 import { events } from "@/data/content";
+import { getEventArt } from "@/data/eventArt";
 import { useCountdown } from "@/hooks/useCountdown";
 import { cn } from "@/lib/utils";
 
@@ -30,6 +32,14 @@ function Countdown({ date }: { date: string }) {
 export function EventsSection() {
   const [selectedTitle, setSelectedTitle] = useState(events[0].title);
   const selected = useMemo(() => events.find((event) => event.title === selectedTitle) ?? events[0], [selectedTitle]);
+
+  // Copertina scelta per ogni evento: parte dal dato in content.ts e resta in
+  // stato locale, cosi' l'organizzatore puo' provare le grafiche in pagina.
+  const [covers, setCovers] = useState<Record<string, string>>(() =>
+    Object.fromEntries(events.map((event) => [event.title, event.cover])),
+  );
+  const cover = getEventArt(covers[selected.title] ?? selected.cover);
+
   const formattedDate = new Intl.DateTimeFormat("it-IT", {
     weekday: "long",
     day: "numeric",
@@ -49,7 +59,7 @@ export function EventsSection() {
         />
 
         <div className="mt-14 grid gap-6 lg:grid-cols-[.95fr_1.05fr]">
-          <div data-reveal className="glass-panel rounded-lg p-4">
+          <div data-reveal className="glass-panel rounded-lg p-4 lg:self-start">
             <div className="mb-4 flex items-center gap-3 px-2 text-sm font-bold uppercase text-white/42">
               <CalendarDays className="h-4 w-4 text-racing-orange" />
               Prossime uscite
@@ -86,10 +96,20 @@ export function EventsSection() {
             <div className="absolute right-0 top-0 h-56 w-56 rounded-full bg-racing-cyan/18 blur-3xl" />
             <div className="absolute bottom-0 left-0 h-56 w-56 rounded-full bg-racing-orange/20 blur-3xl" />
             <div className="relative">
-              <span className="rounded-full border border-racing-cyan/35 bg-racing-cyan/10 px-3 py-1 text-xs font-bold uppercase text-racing-cyan">
-                Evento selezionato
-              </span>
-              <h3 className="mt-5 font-display text-6xl uppercase leading-none text-white">{selected.title}</h3>
+              {/* copertina scelta dall'organizzatore: e' la foto profilo evento */}
+              <div className="relative mb-6 overflow-hidden rounded-lg border border-white/12">
+                <img
+                  key={cover.id}
+                  src={cover.url}
+                  alt={`Copertina evento: ${cover.sceneLabel}`}
+                  className="aspect-[16/9] w-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-asphalt-950 via-asphalt-950/30 to-transparent" />
+                <span className="absolute left-3 top-3 rounded-full border border-racing-cyan/35 bg-asphalt-950/70 px-3 py-1 text-xs font-bold uppercase text-racing-cyan backdrop-blur">
+                  Evento selezionato
+                </span>
+              </div>
+              <h3 className="font-display text-6xl uppercase leading-none text-white">{selected.title}</h3>
               <p className="selectable mt-4 flex items-center gap-2 text-white/62">
                 <MapPin className="h-4 w-4 text-racing-orange" />
                 {selected.place}
@@ -104,6 +124,13 @@ export function EventsSection() {
                   <a href="#iscrizione">Prenota posto</a>
                 </Button>
                 <p className="text-sm font-bold uppercase text-white/44">{selected.seats} posti community</p>
+              </div>
+
+              <div className="mt-6">
+                <EventArtPicker
+                  value={cover.id}
+                  onChange={(id) => setCovers((prev) => ({ ...prev, [selected.title]: id }))}
+                />
               </div>
             </div>
           </div>

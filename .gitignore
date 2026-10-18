@@ -2,6 +2,7 @@ node_modules
 dist
 .bin
 screenshots
+review
 .env
 .env.*
 .DS_Store
