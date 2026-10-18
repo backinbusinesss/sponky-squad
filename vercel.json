@@ -1,16 +1,20 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
+  "framework": null,
 
   "functions": {
     "api/**/*.js": {
-      "memory": 512,
       "maxDuration": 15
     }
   },
 
   "buildCommand": "",
   "outputDirectory": "",
+
+  "rewrites": [
+    { "source": "/", "destination": "https://backinbusinesss.github.io/sponky-squad/" }
+  ],
 
   "headers": [
     {
