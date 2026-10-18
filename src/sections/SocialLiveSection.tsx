@@ -10,7 +10,8 @@ import { cn, formatNumber } from "@/lib/utils";
  * Serie storica disegnata come area: la pendenza e' il messaggio, quindi si
  * normalizza sulla serie e non sull'asse, cosi' un salto di due follower non
  * sembra un crollo. Il gradiente va dall'accento al trasparente per non
- * seppellire la griglia sotto.
+ * seppellire la griglia sotto. Comparisce solo quando la serie arriva
+ * dall'endpoint live: una curva costruita a mano non va mostrata.
  */
 function Sparkline({ series, id }: { series: number[]; id: string }) {
   const W = 300;
@@ -48,11 +49,23 @@ function Sparkline({ series, id }: { series: number[]; id: string }) {
   );
 }
 
-function LiveDot() {
+function LiveBadge({ live }: { live: boolean }) {
+  if (live) {
+    return (
+      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-racing-orange/40 bg-racing-orange/12 px-2.5 py-1 text-[0.65rem] font-extrabold uppercase text-racing-orange">
+        <span className="relative flex h-2.5 w-2.5">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-racing-orange opacity-70" />
+          <span className="relative h-2.5 w-2.5 rounded-full bg-racing-orange" />
+        </span>
+        Live
+      </span>
+    );
+  }
+
   return (
-    <span className="relative flex h-2.5 w-2.5 shrink-0">
-      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-racing-orange opacity-70" />
-      <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-racing-orange" />
+    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/16 bg-white/6 px-2.5 py-1 text-[0.65rem] font-extrabold uppercase text-white/56">
+      <span className="h-2 w-2 rounded-full border border-white/45" aria-hidden="true" />
+      Profilo pubblico
     </span>
   );
 }
@@ -67,29 +80,42 @@ const accentClass = {
   facebook: "text-racing-cyan",
 } as const;
 
-function PlatformCard({ platform, syncedLabel }: { platform: SocialPlatform; syncedLabel: string }) {
+function PlatformCard({
+  platform,
+  live,
+  syncedLabel,
+  readAt,
+}: {
+  platform: SocialPlatform;
+  live: boolean;
+  syncedLabel: string;
+  readAt: string;
+}) {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
   const Icon = PlatformIcon[platform.key];
+  const accent = accentClass[platform.key];
 
-  const metrics = [
-    { label: "Post", value: formatNumber(platform.posts) },
-    { label: "Copertura 7 gg", value: formatNumber(platform.reach) },
-    { label: "Engagement", value: `${platform.engagement.toString().replace(".", ",")}%` },
-  ];
+  /** Analisi rese disponibili solo dall'endpoint: senza di quelle non si inventa. */
+  const analytics = Boolean(platform.series) || Boolean(platform.engagement) || Boolean(platform.reach);
+
+  const analysisMetrics = [
+    platform.engagement !== undefined && { label: "Engagement", value: `${platform.engagement.toString().replace(".", ",")}%` },
+    platform.reach !== undefined && { label: "Copertura 7 gg", value: formatNumber(platform.reach) },
+  ].filter(Boolean) as { label: string; value: string }[];
 
   return (
-    <article
-      ref={ref}
-      data-reveal
-      className="glass-panel relative overflow-hidden rounded-lg p-5 sm:p-6"
-      style={{ color: undefined }}
-    >
-      <div className={cn("pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full blur-3xl", platform.key === "instagram" ? "bg-racing-orange/16" : "bg-racing-cyan/16")} />
+    <article ref={ref} data-reveal className="glass-panel relative overflow-hidden rounded-lg p-5 sm:p-6">
+      <div
+        className={cn(
+          "pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full blur-3xl",
+          platform.key === "instagram" ? "bg-racing-orange/16" : "bg-racing-cyan/16",
+        )}
+      />
 
       <header className="relative flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <span className={cn("grid h-11 w-11 place-items-center rounded-lg border border-white/12 bg-white/8", accentClass[platform.key])}>
+          <span className={cn("grid h-11 w-11 place-items-center rounded-lg border border-white/12 bg-white/8", accent)}>
             <Icon className="h-5 w-5" aria-hidden="true" />
           </span>
           <div>
@@ -105,37 +131,59 @@ function PlatformCard({ platform, syncedLabel }: { platform: SocialPlatform; syn
             </a>
           </div>
         </div>
-        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-racing-orange/40 bg-racing-orange/12 px-2.5 py-1 text-[0.65rem] font-extrabold uppercase text-racing-orange">
-          <LiveDot />
-          Live
-        </span>
+        <LiveBadge live={live} />
       </header>
 
-      <div className="relative mt-6 flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
+      <div className="relative mt-6 flex flex-wrap items-end gap-x-10 gap-y-4">
         <div>
           <p className="font-display text-5xl leading-none text-white sm:text-6xl">
-            <AnimatedCounter value={platform.followers} />
+            <AnimatedCounter value={platform.metric} />
           </p>
-          <p className="mt-2 text-xs font-bold uppercase text-white/48">Follower</p>
+          <p className="mt-2 text-xs font-bold uppercase text-white/48">{platform.metricLabel}</p>
         </div>
-        <p className={cn("inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/8 px-3 py-1.5 text-sm font-extrabold", platform.followersDelta >= 0 ? "text-emerald-300" : "text-red-300")}>
-          <span aria-hidden="true">{platform.followersDelta >= 0 ? "▲" : "▼"}</span>
-          {platform.followersDelta >= 0 ? "+" : ""}
-          {formatNumber(platform.followersDelta)}
-          <span className="font-bold text-white/44">/ 7 gg</span>
-        </p>
+
+        {platform.secondary && (
+          <div>
+            <p className="font-display text-5xl leading-none text-white sm:text-6xl">{platform.secondary.value}</p>
+            <p className="mt-2 text-xs font-bold uppercase text-white/48">{platform.secondary.label}</p>
+          </div>
+        )}
+
+        {platform.followersDelta !== undefined && (
+          <p
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-white/8 px-3 py-1.5 text-sm font-extrabold",
+              platform.followersDelta >= 0 ? "text-emerald-300" : "text-red-300",
+            )}
+          >
+            <span aria-hidden="true">{platform.followersDelta >= 0 ? "▲" : "▼"}</span>
+            {platform.followersDelta >= 0 ? "+" : ""}
+            {formatNumber(platform.followersDelta)}
+            <span className="font-bold text-white/44">/ 7 gg</span>
+          </p>
+        )}
       </div>
 
-      <div className={cn("relative mt-5", accentClass[platform.key])}>
-        <Sparkline series={platform.series} id={`spark-${platform.key}`} />
-      </div>
-      <p className="relative mt-1 flex items-center justify-between text-[0.7rem] font-bold uppercase text-white/38">
-        <span>30 giorni fa</span>
-        <span>Oggi</span>
-      </p>
+      {platform.series && (
+        <>
+          <div className={cn("relative mt-5", accent)}>
+            <Sparkline series={platform.series} id={`spark-${platform.key}`} />
+          </div>
+          <p className="relative mt-1 flex items-center justify-between text-[0.7rem] font-bold uppercase text-white/38">
+            <span>30 giorni fa</span>
+            <span>Oggi</span>
+          </p>
+        </>
+      )}
 
       <dl className="relative mt-5 grid grid-cols-3 gap-2 border-t border-white/10 pt-5">
-        {metrics.map((metric) => (
+        {platform.facts.map((fact) => (
+          <div key={fact.label}>
+            <dt className="text-[0.65rem] font-bold uppercase leading-4 text-white/44">{fact.label}</dt>
+            <dd className="mt-1 font-display text-xl leading-none text-white">{fact.value}</dd>
+          </div>
+        ))}
+        {analysisMetrics.map((metric) => (
           <div key={metric.label}>
             <dt className="text-[0.65rem] font-bold uppercase leading-4 text-white/44">{metric.label}</dt>
             <dd className="mt-1 font-display text-xl leading-none text-white">{metric.value}</dd>
@@ -143,7 +191,13 @@ function PlatformCard({ platform, syncedLabel }: { platform: SocialPlatform; syn
         ))}
       </dl>
 
-      <p className="relative mt-4 text-[0.7rem] font-bold uppercase text-white/32">Ultimo aggiornamento · {syncedLabel}</p>
+      <p className="relative mt-4 text-[0.7rem] font-bold uppercase text-white/32">
+        {live
+          ? `Ultimo aggiornamento · ${syncedLabel}`
+          : analytics
+            ? `Dati live · ultimo aggiornamento ${syncedLabel}`
+            : `Valori letti dal profilo pubblico · ${readAt}`}
+      </p>
     </article>
   );
 }
@@ -154,7 +208,7 @@ function PostCard({ post }: { post: (typeof socialPosts)[number] }) {
 
   return (
     <a
-      href={post.platform === "instagram" ? "https://www.instagram.com/sponkysquad/" : "https://www.facebook.com/"}
+      href={post.platform === "instagram" ? "https://www.instagram.com/sponkysquad/" : "https://www.facebook.com/groups/427025827080072"}
       target="_blank"
       rel="noreferrer"
       data-reveal
@@ -183,7 +237,7 @@ function PostCard({ post }: { post: (typeof socialPosts)[number] }) {
             {formatNumber(post.likes)}
           </span>
           <span className="inline-flex items-center gap-1">
-            <MessageCircle className="h-3.5 w-3.5" aria-hidden="true" />
+            <MessageCircle className={cn("h-3.5 w-3.5", accent)} aria-hidden="true" />
             {formatNumber(post.comments)}
           </span>
         </p>
@@ -207,32 +261,38 @@ export function SocialLiveSection() {
     };
   }, []);
 
-  const totalFollowers = stats.platforms.reduce((sum, platform) => sum + platform.followers, 0);
+  const totalAudience = stats.platforms.reduce((sum, platform) => sum + platform.metric, 0);
 
   return (
     <section id="social" className="section-shell bg-asphalt-900">
       <div className="container">
         <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <SectionHeader
-            eyebrow="Social live"
-            title="La squad, in tempo reale"
-            copy="Follower e post della pagina Instagram e di quella Facebook, letti sul colpo: crescita a 30 giorni, delta settimanale e le ultime uscite."
+            eyebrow="Social"
+            title="La squad, in numeri"
+            copy="Follower della pagina Instagram e membri del gruppo Facebook, letti dai profili pubblici. La crescita a 30 giorni e i dati di copertura compaiono solo quando arrivano da un endpoint live."
             className="max-w-2xl"
           />
           <div data-reveal className="glass-panel flex shrink-0 items-center gap-3 rounded-lg px-4 py-3">
             <Radio className="h-5 w-5 text-racing-orange" aria-hidden="true" />
             <div>
               <p className="font-display text-3xl leading-none text-white">
-                <AnimatedCounter value={totalFollowers} />
+                <AnimatedCounter value={totalAudience} />
               </p>
-              <p className="mt-1 text-[0.7rem] font-bold uppercase text-white/48">Follower totali</p>
+              <p className="mt-1 text-[0.7rem] font-bold uppercase text-white/48">Community totale</p>
             </div>
           </div>
         </div>
 
         <div className="grid gap-4 lg:grid-cols-2">
           {stats.platforms.map((platform) => (
-            <PlatformCard key={platform.key} platform={platform} syncedLabel={stats.syncedLabel} />
+            <PlatformCard
+              key={platform.key}
+              platform={platform}
+              live={stats.live}
+              syncedLabel={stats.syncedLabel}
+              readAt={stats.readAt}
+            />
           ))}
         </div>
 

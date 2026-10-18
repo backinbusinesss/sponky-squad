@@ -3,55 +3,69 @@ import { asset } from "@/lib/asset";
 /**
  * Dati social della pagina.
  *
- * I numeri vivono qui per un motivo preciso: GitHub Pages e' statico e non
- * puo' tenere un token. La sezione prova quindi a leggere `VITE_SOCIAL_STATS_URL`
- * (un endpoint che a sua volta chiama le Graph API di Instagram/Facebook con il
- * token server-side); se l'endpoint non c'e' cade sui valori sotto, che sono lo
- * snapshot dell'ultima sincronizzazione. Basta definire la variabile in `.env`
- * per rendere la sezione davvero live, senza toccare il componente.
+ * Regola: qui entrano solo numeri che si possono leggere da un profilo
+ * pubblico. GitHub Pages e' statico e non puo' tenere un token, quindi la
+ * sezione prova a leggere `VITE_SOCIAL_STATS_URL` (un endpoint che a sua volta
+ * chiama le Graph API); se l'endpoint non c'e' cade sui valori sotto, che sono
+ * lo snapshot della data in `readAt`.
  *
- * Formatto atteso dall'endpoint (JSON):
+ * Le serie a 30 giorni, il delta settimanale, la copertura e l'engagement non
+ * si leggono da un profilo pubblico: non vengono mai inventati, compaiono solo
+ * se li fornisce l'endpoint live. Senza endpoint la scheda mostra i fatti
+ * verificabili e basta.
+ *
+ * Formato atteso dall'endpoint (JSON):
  * {
  *   "syncedAt": "2026-10-18T09:40:00+01:00",
  *   "platforms": {
- *     "instagram": { "followers": 12480, "posts": 342, "series": [..30] },
- *     "facebook":  { "followers": 8640,  "posts": 218, "series": [..30] }
+ *     "instagram": { "metric": 14400, "series": [..30], "followersDelta": 318, ... },
+ *     "facebook":  { "metric": 267,   "series": [..30], ... }
  *   }
  * }
+ *
+ * Numeri verificati il 18 ott 2026 sul profilo pubblico:
+ *   instagram.com/sponkysquad  -> 14,4K follower, 985 post, 424 seguiti
+ *   facebook.com/groups/427025827080072 -> gruppo pubblico, 267 membri
+ *   (i due link sono quelli che sponkysquad.it espone come social ufficiali)
  */
 
 export type SocialPlatformKey = "instagram" | "facebook";
+
+export type SocialFact = { label: string; value: string };
 
 export type SocialPlatform = {
   key: SocialPlatformKey;
   name: string;
   handle: string;
   href: string;
-  /** Follower/pagina attuali. */
-  followers: number;
-  /** Delta della settimana precedente, gia' firmato. */
-  followersDelta: number;
-  /** Post pubblicati. */
-  posts: number;
-  /** Post pubblicati negli ultimi 7 giorni. */
-  postsWeek: number;
-  /** Tasso di interazione medio, in percentuale. */
-  engagement: number;
-  /** Copertura settimanale. */
-  reach: number;
-  /** Serie follower a cadenza giornaliera, ultimi 30 giorni (vecchio -> nuovo). */
-  series: number[];
+  /** "Pagina" per Instagram, "Gruppo pubblico" per Facebook. */
+  kind: string;
+  /** Etichetta del numero grande: "Follower" per una pagina, "Membri" per un gruppo. */
+  metricLabel: string;
+  /** Numero grande, gia' verificato sul profilo pubblico. */
+  metric: number;
+  /** Secondo numero grande (i post) dove esiste; un gruppo non ne ha. */
+  secondary?: SocialFact;
+  /** Fatti verificabili mostrati come chip (seguiti, tipo, ...). */
+  facts: SocialFact[];
+  /** Analisi: compaiono solo se arrivate dall'endpoint live. */
+  series?: number[];
+  followersDelta?: number;
+  engagement?: number;
+  reach?: number;
 };
 
 export type SocialStats = {
   platforms: SocialPlatform[];
   syncedAt: string;
   syncedLabel: string;
+  /** true solo quando i numeri arrivano dall'endpoint, non dallo snapshot. */
   live: boolean;
+  /** Data in cui lo snapshot e' stato letto dal profilo pubblico. */
+  readAt: string;
 };
 
-const SYNCED_AT = "2026-10-18T09:40:00+01:00";
-const SYNCED_LABEL = "18 ott 2026 · 09:40";
+const READ_AT = "18 ott 2026";
 
 const snapshotPlatforms: SocialPlatform[] = [
   {
@@ -59,43 +73,37 @@ const snapshotPlatforms: SocialPlatform[] = [
     name: "Instagram",
     handle: "@sponkysquad",
     href: "https://www.instagram.com/sponkysquad/",
-    followers: 12480,
-    followersDelta: 318,
-    posts: 342,
-    postsWeek: 9,
-    engagement: 7.4,
-    reach: 148200,
-    series: [
-      11912, 11934, 11961, 11958, 11987, 12014, 12042, 12039, 12071, 12104,
-      12132, 12128, 12161, 12194, 12227, 12219, 12256, 12288, 12317, 12344,
-      12371, 12365, 12398, 12426, 12451, 12447, 12463, 12471, 12476, 12480,
+    kind: "Pagina",
+    metricLabel: "Follower",
+    metric: 14400,
+    secondary: { label: "Post", value: "985" },
+    facts: [
+      { label: "Seguiti", value: "424" },
+      { label: "Tipo", value: "Pagina" },
     ],
   },
   {
     key: "facebook",
     name: "Facebook",
-    handle: "Sponky Squad",
-    href: "https://www.facebook.com/",
-    followers: 8640,
-    followersDelta: 142,
-    posts: 218,
-    postsWeek: 4,
-    engagement: 4.1,
-    reach: 61400,
-    series: [
-      8312, 8324, 8337, 8331, 8348, 8361, 8374, 8370, 8385, 8398, 8412, 8409,
-      8424, 8437, 8451, 8446, 8462, 8477, 8489, 8503, 8516, 8512, 8527, 8541,
-      8556, 8552, 8571, 8594, 8617, 8640,
+    handle: "SponkySquad",
+    href: "https://www.facebook.com/groups/427025827080072",
+    kind: "Gruppo pubblico",
+    metricLabel: "Membri",
+    metric: 267,
+    facts: [
+      { label: "Visibilita'", value: "Pubblica" },
+      { label: "Tipo", value: "Gruppo" },
     ],
   },
 ];
 
-/** Fallback: snapshot locale. */
+/** Fallback: snapshot letto dai profili pubblici. */
 export const socialSnapshot: SocialStats = {
   platforms: snapshotPlatforms,
-  syncedAt: SYNCED_AT,
-  syncedLabel: SYNCED_LABEL,
+  syncedAt: new Date().toISOString(),
+  syncedLabel: `${READ_AT} · profilo pubblico`,
   live: false,
+  readAt: READ_AT,
 };
 
 type LivePayload = {
@@ -129,7 +137,7 @@ export async function loadSocialStats(): Promise<SocialStats> {
     const payload = (await response.json()) as LivePayload;
     const platforms = snapshotPlatforms.map((platform) => {
       const patch = payload.platforms?.[platform.key];
-      return patch ? { ...platform, ...patch, series: patch.series ?? platform.series } : platform;
+      return patch ? { ...platform, ...patch, facts: patch.facts ?? platform.facts } : platform;
     });
 
     const syncedAt = payload.syncedAt ?? new Date().toISOString();
@@ -146,6 +154,7 @@ export async function loadSocialStats(): Promise<SocialStats> {
           minute: "2-digit",
         }).format(new Date(syncedAt)),
       live: true,
+      readAt: READ_AT,
     };
   } catch {
     return socialSnapshot;
