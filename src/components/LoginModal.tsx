@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Loader2, Gauge, X } from "lucide-react";
+import { Loader2, Gauge, X, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/lib/auth-context";
@@ -41,6 +41,7 @@ export function LoginModal({ open, onClose, onSwitchToRegister }: LoginModalProp
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [revving, setRevving] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
 
   // chiude con Esc
@@ -162,14 +163,19 @@ export function LoginModal({ open, onClose, onSwitchToRegister }: LoginModalProp
             <label htmlFor="login-password" className="text-sm font-bold text-white/76">
               Password
             </label>
+            <div className="relative">
             <Input
               id="login-password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+            <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white" aria-label={showPassword ? "Nascondi password" : "Mostra password"}>
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+            </div>
           </div>
 
           {error ? (

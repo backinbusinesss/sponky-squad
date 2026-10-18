@@ -74,6 +74,7 @@ export default function App() {
 
   return (
     <AuthProvider>
+      <CustomCursor />
       <RouteGate route={route}>
         <SiteHeader />
         <LoginModal
@@ -113,7 +114,7 @@ function HomePage() {
   return (
     <div ref={scope} className="min-h-screen overflow-x-hidden bg-asphalt-950 text-white selection:bg-racing-orange selection:text-asphalt-950">
       <Preloader />
-      <CustomCursor />
+      
       <main>
         <HeroSection />
         <StatsLiveSection />

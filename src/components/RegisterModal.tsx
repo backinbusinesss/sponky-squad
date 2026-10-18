@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, X } from "lucide-react";
+import { Loader2, X, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/lib/auth-context";
@@ -43,6 +43,7 @@ export function RegisterModal({ open, onClose, onSwitchToLogin }: RegisterModalP
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -159,7 +160,12 @@ export function RegisterModal({ open, onClose, onSwitchToLogin }: RegisterModalP
 
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Password" hint="Almeno 8 caratteri" error={errors.password}>
-              <Input type="password" value={form.password} onChange={(e) => set("password", e.target.value)} className={field("password")} autoComplete="new-password" required />
+              <div className="relative">
+                <Input type={showPassword ? "text" : "password"} value={form.password} onChange={(e) => set("password", e.target.value)} className={field("password")} autoComplete="new-password" required />
+                <button type="button" onClick={() => setShowPassword((v) => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white" aria-label={showPassword ? "Nascondi password" : "Mostra password"}>
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </Field>
             <Field label="CAP" error={errors.cap}>
               <Input inputMode="numeric" maxLength={5} value={form.cap} onChange={(e) => set("cap", e.target.value)} className={field("cap")} autoComplete="postal-code" required />

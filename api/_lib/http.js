@@ -1,4 +1,4 @@
-﻿import { neon } from "@neondatabase/serverless";
+import { neon } from "@neondatabase/serverless";
 
 /**
  * Connessione a Neon tramite il driver HTTP.
@@ -68,7 +68,13 @@ export function corsHeaders(req) {
 
 export function handleCors(req, res) {
   if (req.method === "OPTIONS") {
-    res.status(204).setHeader("Access-Control-Max-Age", "86400").end();
+    // Il preflight deve portare gli stessi header CORS della risposta vera:
+    // senza di essi il browser blocca la richiesta prima ancora di inviarla.
+    const headers = corsHeaders(req);
+    for (const [key, value] of Object.entries(headers)) {
+      res.setHeader(key, value);
+    }
+    res.status(204).end();
     return true;
   }
   return false;

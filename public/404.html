@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sponky Squad</title>
+  <script>
+    // SPA fallback per GitHub Pages: preserva il path e reindirizza alla home
+    // con l'hash route corrispondente, cosi' /admin diventa /#/admin.
+    (function () {
+      var path = window.location.pathname.replace(/^\/sponky-squad\/?/, "").replace(/\/$/, "");
+      var hash = path ? "#/" + path : "#/";
+      window.location.replace(window.location.origin + "/sponky-squad/" + hash);
+    })();
+  </script>
+</head>
+<body></body>
+</html>
