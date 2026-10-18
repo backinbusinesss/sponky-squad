@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import { ArrowDown, BadgeCheck, MapPin, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import { MagneticButton } from "@/components/MagneticButton";
+import { asset } from "@/lib/asset";
 
 const BikeScene = lazy(() => import("@/three/BikeScene").then((module) => ({ default: module.BikeScene })));
 
@@ -59,6 +60,14 @@ export function HeroSection() {
           >
             Community italiana per biker
           </motion.p>
+          <motion.img
+            src={asset("/assets/sponky-logo-original.webp")}
+            alt="Sponky Squad"
+            className="mb-4 h-16 w-16 rounded-full bg-white/8 object-contain p-2 shadow-neon md:h-20 md:w-20"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+          />
           <motion.h1
             className="font-display text-[clamp(3.9rem,8.9vw,9.4rem)] uppercase leading-[0.8] text-white neon-text"
             initial={{ opacity: 0, y: 32, filter: "blur(14px)" }}
@@ -103,7 +112,7 @@ export function HeroSection() {
             { icon: MapPin, title: "Mappa viva", copy: "Partner, ritrovi e percorsi da scoprire vicino a te." },
             { icon: Zap, title: "Eventi reali", copy: "Motogiri, pista, serate e networking tra iscritti." },
           ].map((item) => (
-            <div key={item.title} className="glass-panel rounded-lg p-4">
+            <div key={item.title} className="glass-panel rounded-lg p-4 bg-asphalt-950/50 backdrop-blur-md">
               <div className="flex items-start gap-4">
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-racing-orange text-asphalt-950">
                   <item.icon className="h-5 w-5" />

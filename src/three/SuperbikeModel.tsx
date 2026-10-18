@@ -861,13 +861,13 @@ function useBikePlacement(): Placement {
   return useMemo(() => {
     if (width < 640) {
       // telefono stretto
-      return { position: [0.02, 0.78, -0.35], scale: 0.7, rotY: -0.6 };
+      return { position: [0, 0.7, -0.25], scale: 0.78, rotY: -0.5 };
     }
     if (width < 1024) {
       // tablet / telefono grande
-      return { position: [0.1, 0.7, -0.3], scale: 0.86, rotY: -0.66 };
+      return { position: [0.05, 0.6, -0.2], scale: 0.95, rotY: -0.55 };
     }
-    return { position: [1.5, 0.26, 0], scale: 1.26, rotY: -0.72 };
+    return { position: [0.3, 0.15, 0], scale: 1.35, rotY: -0.55 };
   }, [width]);
 }
 
@@ -886,7 +886,6 @@ function RealSuperbike({ place }: { place: Placement }) {
     <group scale={place.scale} rotation={[0, place.rotY, 0]} position={place.position}>
       <primitive object={scene} />
       <HeroBikeAccents />
-      <PigRider />
     </group>
   );
 }
