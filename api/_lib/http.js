@@ -1,4 +1,4 @@
-import { neon } from "@neondatabase/serverless";
+﻿import { neon } from "@neondatabase/serverless";
 
 /**
  * Connessione a Neon tramite il driver HTTP.
@@ -8,7 +8,7 @@ import { neon } from "@neondatabase/serverless";
  * connessioni TCP si ricrea ogni volta e su Neon finisce rapidamente in
  * "too many connections". Il driver HTTP non tiene connessioni aperte.
  *
- * Le query sono parametrizzate per costruzione: sql`...${x}` passa x come
+ * Le query sono parametrizzate per costruzione: sql()`...${x}` passa x come
  * parametro vero, non come stringa. Non c'e' modo di scrivere SQL injection
  * anche per distrazione.
  */

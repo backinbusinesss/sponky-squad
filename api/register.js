@@ -1,4 +1,4 @@
-import { sql, json, handleCors, readJsonBody } from "./_lib/http.js";
+﻿import { sql, json, handleCors, readJsonBody } from "./_lib/http.js";
 import { hashPassword, signSession, setSessionCookies, makeMemberId } from "./_lib/auth.js";
 import { validateRegistration, hasErrors } from "./_lib/validate.js";
 import { checkRateLimit, recordFailedAttempt, clearAttempts } from "./_lib/rateLimit.js";
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
     );
   }
 
-  const existing = await sql`
+  const existing = await sql()`
     select 1 from users
     where lower(email) = ${data.email}
        or card_number = ${data.card_number}
@@ -56,7 +56,7 @@ export default async function handler(req, res) {
     const passwordHash = await hashPassword(data.password);
     const memberId = makeMemberId();
 
-    const rows = await sql`
+    const rows = await sql()`
       insert into users (
         first_name, last_name, email, password_hash, cap, age_range,
         card_number, group_name, riding_styles, discount_interests,

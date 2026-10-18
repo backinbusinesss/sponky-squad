@@ -18,7 +18,7 @@ console.log(`[deploy] build con base ${BASE}`);
 // "https://sponky-squad.vercel.app"). Se non è ancora impostato il frontend
 // resta senza backend: le chiamate di login falliscono con "Impossibile
 // contattare il server", senza rompere il resto del sito.
-const apiBase = process.env.VITE_API_BASE;
+const apiBase = process.env.VITE_API_BASE ?? "https://sponky-squad.vercel.app";
 if (apiBase) {
   console.log(`[deploy] API backend: ${apiBase}`);
 } else {

@@ -1,19 +1,18 @@
 import { sql, json, handleCors } from "../_lib/http.js";
 import { requireAdmin } from "../_lib/adminGuard.js";
+import { toggleUser } from "../_lib/adminActions.js";
 
-/**
- * Elenco utenti per la dashboard admin.
- *
- * password_hash non viene mai selezionato, nemmeno per poi cancellarlo:
- * il campo resta nel database e basta. Ogni richiesta in piu' che tocca quel
- * campo e' un rischio inutile.
- */
 export default async function handler(req, res) {
   if (handleCors(req, res)) return;
-  if (req.method !== "GET") return json(req, res, 405, { error: "Metodo non consentito." });
 
   const admin = await requireAdmin(req, res);
   if (!admin) return;
+
+  if (req.method === "PATCH") {
+    return toggleUser(req, res, admin);
+  }
+
+  if (req.method !== "GET") return json(req, res, 405, { error: "Metodo non consentito." });
 
   const page = Math.max(Number.parseInt(String(req.query?.page ?? "1"), 10) || 1, 1);
   const pageSize = Math.min(Math.max(Number.parseInt(String(req.query?.size ?? "50"), 10) || 50, 1), 200);
@@ -21,29 +20,45 @@ export default async function handler(req, res) {
   const search = String(req.query?.q ?? "").trim().toLowerCase();
 
   try {
-    const where = search
-      ? sql`where lower(first_name) like ${`%${search}%`}
-            or lower(last_name) like ${`%${search}%`}
-            or lower(email) like ${`%${search}%`}
-            or lower(member_id) like ${`%${search}%`}`
-      : sql``;
+    const db = sql();
+    let rows;
+    let totalResult;
+    if (search) {
+      const pattern = `%${search}%`;
+      rows = await db`
+        select id, first_name, last_name, email, cap, age_range, card_number,
+               group_name, riding_styles, discount_interests, newsletter,
+               member_id, is_active, is_admin, created_at
+        from users
+        where lower(first_name) like ${pattern}
+           or lower(last_name) like ${pattern}
+           or lower(email) like ${pattern}
+           or lower(member_id) like ${pattern}
+        order by created_at desc
+        limit ${pageSize} offset ${offset}
+      `;
+      totalResult = await db`select count(*)::int as total from users
+        where lower(first_name) like ${pattern}
+           or lower(last_name) like ${pattern}
+           or lower(email) like ${pattern}
+           or lower(member_id) like ${pattern}`;
+    } else {
+      rows = await db`
+        select id, first_name, last_name, email, cap, age_range, card_number,
+               group_name, riding_styles, discount_interests, newsletter,
+               member_id, is_active, is_admin, created_at
+        from users
+        order by created_at desc
+        limit ${pageSize} offset ${offset}
+      `;
+      totalResult = await db`select count(*)::int as total from users`;
+    }
 
-    const rows = await sql`
-      select id, first_name, last_name, email, cap, age_range, card_number,
-             group_name, riding_styles, discount_interests, newsletter,
-             member_id, is_active, is_admin, created_at
-      from users
-      ${where}
-      order by created_at desc
-      limit ${pageSize} offset ${offset}
-    `;
-
-    const totalRows = await sql`select count(*)::int as total from users ${where}`;
-    const activeRows = await sql`select count(*)::int as total from users where is_active = true`;
+    const activeRows = await db`select count(*)::int as total from users where is_active = true`;
 
     return json(req, res, 200, {
       users: rows.map(toPublic),
-      total: totalRows[0]?.total ?? 0,
+      total: totalResult[0]?.total ?? 0,
       active: activeRows[0]?.total ?? 0,
       page,
       pageSize,

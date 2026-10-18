@@ -1,4 +1,4 @@
-import { sql } from "./http.js";
+﻿import { sql } from "./http.js";
 import { fingerprint } from "./auth.js";
 
 /**
@@ -29,7 +29,7 @@ export async function checkRateLimit(req, scope, identifier) {
   const limit = scope === "admin" ? MAX_ADMIN_ATTEMPTS : MAX_USER_ATTEMPTS;
   const since = new Date(Date.now() - WINDOW_MS).toISOString();
 
-  const rows = await sql`
+  const rows = await sql()`
     select count(*)::int as attempts,
            extract(epoch from (min(attempted_at) + interval '15 minutes' - now()))::int as retry_after
     from login_attempts
@@ -55,7 +55,7 @@ export async function checkRateLimit(req, scope, identifier) {
  */
 export async function recordFailedAttempt(req, scope, identifier) {
   const bucket = bucketFor(req, scope, identifier);
-  await sql`
+  await sql()`
     insert into login_attempts (bucket, scope)
     values (${bucket}, ${scope})
   `;
@@ -63,7 +63,7 @@ export async function recordFailedAttempt(req, scope, identifier) {
 
 export async function clearAttempts(req, scope, identifier) {
   const bucket = bucketFor(req, scope, identifier);
-  await sql`
+  await sql()`
     delete from login_attempts
     where bucket = ${bucket}
       and scope = ${scope}
@@ -77,7 +77,7 @@ export async function clearAttempts(req, scope, identifier) {
  */
 export async function recordAttempt(req, scope, identifier) {
   const bucket = bucketFor(req, scope, identifier);
-  await sql`
+  await sql()`
     insert into login_attempts (bucket, scope)
     values (${bucket}, ${scope})
   `;
@@ -90,5 +90,5 @@ export async function recordAttempt(req, scope, identifier) {
  */
 export async function pruneAttempts() {
   const since = new Date(Date.now() - WINDOW_MS * 2).toISOString();
-  await sql`delete from login_attempts where attempted_at < ${since}`;
+  await sql()`delete from login_attempts where attempted_at < ${since}`;
 }

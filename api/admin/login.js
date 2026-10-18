@@ -1,4 +1,4 @@
-import { sql, json, handleCors, readJsonBody } from "../_lib/http.js";
+﻿import { sql, json, handleCors, readJsonBody } from "../_lib/http.js";
 import { verifyPassword, signSession, setSessionCookies } from "../_lib/auth.js";
 import { checkRateLimit, recordFailedAttempt, clearAttempts, pruneAttempts } from "../_lib/rateLimit.js";
 
@@ -41,7 +41,7 @@ export default async function handler(req, res) {
 
   let rows = [];
   try {
-    rows = await sql`
+    rows = await sql()`
       select id, first_name, last_name, password_hash, is_active, is_admin, token_version
       from users
       where lower(email) = ${username} or lower(member_id) = ${username}

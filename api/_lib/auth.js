@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { sql as getSql } from "./http.js";
 
 export const SESSION_COOKIE = "sponky_session";
 export const CSRF_COOKIE = "sponky_csrf";
@@ -125,7 +126,8 @@ export function getSession(req) {
 export async function getSessionFresh(req) {
   const payload = getSession(req);
   if (!payload) return null;
-  const rows = await sql()`select token_version from users where id = ${payload.sub} limit 1`;
+  const db = getSql();
+  const rows = await db`select token_version from users where id = ${payload.sub} limit 1`;
   const current = rows?.[0]?.token_version;
   if (typeof current !== "number" || current !== payload.tv) return null;
   return payload;

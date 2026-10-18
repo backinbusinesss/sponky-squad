@@ -1,4 +1,4 @@
-import { sql, json, handleCors, readJsonBody } from "./_lib/http.js";
+﻿import { sql, json, handleCors, readJsonBody } from "./_lib/http.js";
 import { getSessionFresh, csrfOk, hashPassword, verifyPassword, signSession, serializeCookie, SESSION_COOKIE } from "./_lib/auth.js";
 import { CARD_MAX, CARD_MIN, RIDING_STYLES, DISCOUNT_INTERESTS, GROUP_NAMES, AGE_RANGES } from "./_lib/options.js";
 
@@ -62,7 +62,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const rows = await sql`
+    const rows = await sql()`
       select password_hash from users where id = ${session.sub} limit 1
     `;
     if (!rows[0]) return json(req, res, 401, { error: "Account non trovato." });
@@ -80,7 +80,7 @@ export default async function handler(req, res) {
     // Aggiorniamo i campi in un solo passaggio. Il numero di password non
     // cambia mai: non serve alcun update condizionale dell'array, che in
     // un template letterale non e' comunque interpolabile.
-    const updated = await sql`
+    const updated = await sql()`
       update users set
         first_name = ${first},
         last_name = ${last},
@@ -100,7 +100,7 @@ export default async function handler(req, res) {
     // scadenza. Incrementiamo token_version: ogni controllo la confronta,
     // quindi tutti i token emessi prima diventano invalidi subito.
     if (passwordHash) {
-      await sql`
+      await sql()`
         update users set password_hash = ${passwordHash}, token_version = token_version + 1
         where id = ${session.sub}
       `;
@@ -110,7 +110,7 @@ export default async function handler(req, res) {
 
     let setCookies;
     if (passwordHash) {
-      const fresh = await sql`
+      const fresh = await sql()`
         select token_version from users where id = ${session.sub} limit 1
       `;
       const newToken = signSession({

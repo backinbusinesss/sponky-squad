@@ -1,15 +1,23 @@
-import { sql, json, handleCors } from "../_lib/http.js";
+﻿import { sql, json, handleCors } from "../_lib/http.js";
 import { requireAdmin } from "../_lib/adminGuard.js";
+import { reviewPartner } from "../_lib/adminActions.js";
 
 export default async function handler(req, res) {
   if (handleCors(req, res)) return;
-  if (req.method !== "GET") return json(req, res, 405, { error: "Metodo non consentito." });
 
   const admin = await requireAdmin(req, res);
   if (!admin) return;
 
+  // PATCH con ?id=... revisiona una richiesta. Consolidato qui per restare
+  // sotto il limite di 12 funzioni del piano Hobby di Vercel.
+  if (req.method === "PATCH") {
+    return reviewPartner(req, res);
+  }
+
+  if (req.method !== "GET") return json(req, res, 405, { error: "Metodo non consentito." });
+
   try {
-    const rows = await sql`
+    const rows = await sql()`
       select id, first_name, last_name, company, email, phone, message,
              status, created_at, reviewed_at
       from partner_requests
@@ -17,7 +25,7 @@ export default async function handler(req, res) {
       limit 200
     `;
 
-    const pending = await sql`
+    const pending = await sql()`
       select count(*)::int as total from partner_requests where status = 'pending'
     `;
 

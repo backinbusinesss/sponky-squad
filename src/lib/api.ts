@@ -196,7 +196,7 @@ export const api = {
   },
 
   adminToggleUser: (id: string, isActive: boolean) =>
-    request<{ ok: true; isActive: boolean }>(`/api/admin/users/${encodeURIComponent(id)}`, {
+    request<{ ok: true; isActive: boolean }>(`/api/admin/users?id=${encodeURIComponent(id)}`, {
       method: "PATCH",
       body: { isActive },
     }),
@@ -221,7 +221,7 @@ export const api = {
     }>("/api/admin/partners"),
 
   adminReviewPartner: (id: string, status: "approved" | "rejected") =>
-    request<{ ok: true }>(`/api/admin/partners/${encodeURIComponent(id)}`, {
+    request<{ ok: true }>(`/api/admin/partners?id=${encodeURIComponent(id)}`, {
       method: "PATCH",
       body: { status },
     }),

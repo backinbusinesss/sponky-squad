@@ -1,4 +1,4 @@
-import { sql, json, handleCors, readJsonBody } from "./_lib/http.js";
+﻿import { sql, json, handleCors, readJsonBody } from "./_lib/http.js";
 import { verifyPassword, signSession, setSessionCookies } from "./_lib/auth.js";
 import { validateLogin, hasErrors } from "./_lib/validate.js";
 import { checkRateLimit, recordFailedAttempt, clearAttempts, pruneAttempts } from "./_lib/rateLimit.js";
@@ -41,7 +41,7 @@ export default async function handler(req, res) {
     );
   }
 
-  const rows = await sql`
+  const rows = await sql()`
     select id, first_name, last_name, email, cap, age_range, card_number,
            group_name, riding_styles, discount_interests, newsletter,
            member_id, password_hash, is_active, is_admin, token_version

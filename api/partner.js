@@ -1,4 +1,4 @@
-import { sql, json, handleCors, readJsonBody } from "./_lib/http.js";
+﻿import { sql, json, handleCors, readJsonBody } from "./_lib/http.js";
 import { validatePartner, hasErrors } from "./_lib/validate.js";
 import { checkRateLimit, recordAttempt } from "./_lib/rateLimit.js";
 
@@ -36,7 +36,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    await sql`
+    await sql()`
       insert into partner_requests (first_name, last_name, company, email, phone, message, privacy_accepted)
       values (${data.first_name}, ${data.last_name}, ${data.company}, ${data.email}, ${data.phone}, ${data.message}, ${data.privacy_accepted})
     `;

@@ -1,4 +1,4 @@
-import { sql, json } from "./http.js";
+﻿import { sql, json } from "./http.js";
 import { getSession } from "./auth.js";
 
 /**
@@ -23,7 +23,7 @@ export async function requireAdmin(req, res) {
 
   let rows = [];
   try {
-    rows = await sql`
+    rows = await sql()`
       select id, first_name, last_name, token_version, is_admin, is_active
       from users
       where id = ${session.sub}

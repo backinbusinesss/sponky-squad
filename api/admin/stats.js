@@ -1,4 +1,4 @@
-import { sql, json, handleCors } from "../_lib/http.js";
+﻿import { sql, json, handleCors } from "../_lib/http.js";
 import { requireAdmin } from "../_lib/adminGuard.js";
 
 /**
@@ -16,7 +16,7 @@ export default async function handler(req, res) {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
   try {
-    const rows = await sql`
+    const rows = await sql()`
       select scope, count(*)::int as attempts
       from login_attempts
       where attempted_at > ${since}

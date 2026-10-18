@@ -1,4 +1,4 @@
-import { sql, json, handleCors } from "./_lib/http.js";
+﻿import { sql, json, handleCors } from "./_lib/http.js";
 import { getSession, clearSessionCookies } from "./_lib/auth.js";
 
 export default async function handler(req, res) {
@@ -15,7 +15,7 @@ export default async function handler(req, res) {
 
   let rows = [];
   try {
-    rows = await sql`
+    rows = await sql()`
       select id, first_name, last_name, email, cap, age_range, card_number,
              group_name, riding_styles, discount_interests, newsletter,
              member_id, created_at, is_active, is_admin

@@ -1,4 +1,4 @@
-import { sql } from "./http.js";
+﻿import { sql } from "./http.js";
 
 /**
  * Dati di prova per il form di registrazione.
@@ -45,7 +45,7 @@ export function buildCard(user) {
 
 /** Legge un utente per email, senza mai toccare password_hash. */
 export async function findUserByEmail(email) {
-  const rows = await sql`
+  const rows = await sql()`
     select id, first_name, last_name, email, cap, age_range, card_number,
            group_name, riding_styles, discount_interests, newsletter,
            member_id, is_active, is_admin, created_at, token_version
