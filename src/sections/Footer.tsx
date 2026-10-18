@@ -27,6 +27,39 @@ export function Footer() {
           ))}
         </div>
       </div>
+
+      {/* Footer legale: dati reali di Sponkysquad (P.IVA, link legali, credits). */}
+      <div className="container border-t border-white/8 pt-6">
+        <p className="text-center text-xs leading-6 text-white/48">
+          © 2026 Sponkysquad - P.IVA e C.F. 04202430130 -{" "}
+          <a
+            href="https://www.sponkysquad.it/wp-content/themes/foundation/documents/termini-condizioni-sponkyquad.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline-offset-2 hover:text-white/80 hover:underline"
+          >
+            Privacy Policy - Termini e condizioni
+          </a>{" "}
+          -{" "}
+          <a
+            href="https://www.iubenda.com/privacy-policy/33780354/cookie-policy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline-offset-2 hover:text-white/80 hover:underline"
+          >
+            Cookie Policy
+          </a>{" "}
+          -{" "}
+          <a
+            href="https://www.linoolmostudio.it/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline-offset-2 hover:text-white/80 hover:underline"
+          >
+            Credits: LO Studio
+          </a>
+        </p>
+      </div>
     </footer>
   );
 }
