@@ -14,7 +14,17 @@ const run = (cmd, opts = {}) =>
   execSync(cmd, { stdio: "inherit", ...opts });
 
 console.log(`[deploy] build con base ${BASE}`);
-run(`npm run build`, { env: { ...process.env, VITE_BASE: BASE } });
+// VITE_API_BASE: URL del deploy Vercel dove gira l'API (es.
+// "https://sponky-squad.vercel.app"). Se non è ancora impostato il frontend
+// resta senza backend: le chiamate di login falliscono con "Impossibile
+// contattare il server", senza rompere il resto del sito.
+const apiBase = process.env.VITE_API_BASE;
+if (apiBase) {
+  console.log(`[deploy] API backend: ${apiBase}`);
+} else {
+  console.log("[deploy] ATTENZIONE: VITE_API_BASE non impostata, deploy senza backend");
+}
+run(`npm run build`, { env: { ...process.env, VITE_BASE: BASE, VITE_API_BASE: apiBase ?? "" } });
 
 // pulizia: niente pagine di sviluppo online
 for (const junk of ["cursor-preview.html", "graphics-preview.html"]) {

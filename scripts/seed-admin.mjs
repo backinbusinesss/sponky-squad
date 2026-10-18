@@ -50,7 +50,10 @@ const query = sql();
 
 const first = process.env.ADMIN_FIRST_NAME ?? "Sponky";
 const last = process.env.ADMIN_LAST_NAME ?? "Admin";
-const email = (process.env.ADMIN_EMAIL ?? "admin@sponkysquad.it").toLowerCase();
+// Il login admin confronta username con email O member_id, quindi impostando
+// email="admin" la credenziale letterale richiesta funziona direttamente
+// nel campo username. ADMIN_EMAIL permette di usare un indirizzo vero.
+const email = (process.env.ADMIN_EMAIL ?? "admin").toLowerCase();
 
 const passwordHash = await hashPassword(ADMIN_PASSWORD);
 const memberId = makeMemberId();
