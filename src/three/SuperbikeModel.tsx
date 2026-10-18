@@ -29,8 +29,8 @@ const MODEL_PATH = asset("/models/superbike.glb");
  * Testa e proporzioni: la testa e' l'elemento eroe della scena, quindi scala
  * piu' alta del corpo ridotto.
  */
-const HEAD_Y = 1.04;
-const HEAD_SCALE = 0.7;
+const HEAD_Y = 1.06;
+const HEAD_SCALE = 0.76;
 const PINK = "#f9adb9";
 const SNOUT = "#ff9aaf";
 const PINK_DARK = "#e07a8c";
@@ -134,6 +134,33 @@ function aviatorCapGeometry(
   geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
   geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
   geometry.computeVertexNormals();
+
+  /**
+   * Normali verso l'ESTERNO.
+   *
+   * Questo e' il motivo per cui il casco non si vedeva. L'ordine degli indici
+   * (a,b,d / b,c,d) e' quello di SphereGeometry, ma qui il raggio finale
+   * theta varia da colonna a colonna: dove la manica si apre il passo fra una
+   * riga e l'altra supera il passo orizzontale, il triangolo si inverte e
+   * computeVertexNormals legge la faccia come se guardasse dentro la sfera.
+   * FrontSide scarta allora la superficie esterna e del casco restava solo un
+   * filo ai lati, con la testa tutta rosa davanti.
+   *
+   * La correzione e' esplicita: ogni normale la si proietta sulla posizione,
+   * che per una sfera centrata nell'origine e' la normale geometrica esatta.
+   */
+  const pos = geometry.getAttribute("position");
+  const nor = geometry.getAttribute("normal") as THREE.BufferAttribute;
+  for (let i = 0; i < pos.count; i += 1) {
+    let x = pos.getX(i);
+    let y = pos.getY(i);
+    let z = pos.getZ(i);
+    const len = Math.hypot(x, y, z) || 1;
+    nor.setXYZ(i, x / len, y / len, z / len);
+  }
+  nor.needsUpdate = true;
+
+  geometry.computeBoundingSphere();
   return geometry;
 }
 
@@ -145,8 +172,15 @@ function PigRider() {
   const earL = useRef<THREE.Group>(null);
   const earR = useRef<THREE.Group>(null);
 
-  /** Casco: una sola superficie con l'apertura del viso ad arco. */
-  const capGeometry = useMemo(() => aviatorCapGeometry(CAP_R, 0.907, 2.3, 1.9), []);
+  /**
+   * Casco: una sola superficie con l'apertura del viso ad arco.
+   *
+   * thetaFront 1.40 rad = 80 gradi: il bordo frontale cade A LIVELLO degli
+   * occhi, cosi' resta tutta la cupola nera sopra di loro. Con 1.10 il bordo
+   * stava piu' in basso del bulbo oculare, il casco finiva dietro la testa e
+   * da davanti non si vedeva altro che pelle rosa.
+   */
+  const capGeometry = useMemo(() => aviatorCapGeometry(CAP_R, 1.4, 2.4, 2.35), []);
 
   /**
    * Scritta "SPONKY" sulla fronte dell'elmetto: disegnata su canvas e mappata
@@ -154,26 +188,43 @@ function PigRider() {
    * richiede un font scaricato a runtime.
    */
   const foreheadText = useMemo(() => {
+    // rapporto del segmento di sfera su cui la scritta viene mappata
+    // (phi 1.15, theta 0.75..1.05, raggio 0.553): mantenere il canvas alla
+    // stessa proporzione e' l'unico modo per non deformare le lettere.
+    const W = 640;
+    const H = 212;
     const canvas = document.createElement("canvas");
-    canvas.width = 640;
-    canvas.height = 292;
+    canvas.width = W;
+    canvas.height = H;
     const ctx = canvas.getContext("2d");
     if (ctx) {
-      ctx.clearRect(0, 0, 640, 292);
+      ctx.clearRect(0, 0, W, H);
       ctx.fillStyle = "#ffffff";
-      ctx.font = "900 132px 'Arial Black', 'Helvetica Neue', Arial, sans-serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      // interlettering: il canvas non lo supporta ovunque, quindi si simula
       const word = "SPONKY";
-      const spacing = 8;
+      const spacing = 10;
+      const face = (size: number) => `900 ${size}px 'Arial Black', 'Helvetica Neue', Arial, sans-serif`;
+      const measure = (size: number) => {
+        ctx.font = face(size);
+        let total = 0;
+        for (const ch of word) total += ctx.measureText(ch).width + spacing;
+        return total - spacing;
+      };
+      // si adatta al canvas invece di usare un corpo fisso: un font piu' largo
+      // del riquadro finirebbe tagliato ai bordi del segmento sferico
+      const target = W - 52;
+      let size = 140;
+      const natural = measure(size);
+      if (natural > target) size = Math.floor((size * target) / natural);
+      ctx.font = face(size);
       let total = 0;
       for (const ch of word) total += ctx.measureText(ch).width + spacing;
       total -= spacing;
-      let x = (640 - total) / 2;
+      let x = (W - total) / 2;
       for (const ch of word) {
         const w = ctx.measureText(ch).width;
-        ctx.fillText(ch, x + w / 2, 152);
+        ctx.fillText(ch, x + w / 2, H / 2 + 2);
         x += w + spacing;
       }
     }
@@ -422,91 +473,117 @@ function PigRider() {
         rotation={[0.1, 0.14, 0]}
         scale={HEAD_SCALE}
       >
+        {/* pelle: non plastica. Sheen morbido + alta ruvidezza tolgono il
+            riflesso netto tipico del materiale da giocattolo */}
         <mesh>
           <sphereGeometry args={[0.5, 44, 34]} />
-          <meshStandardMaterial color={PINK} roughness={0.62} metalness={0} />
+          <meshPhysicalMaterial
+            color={PINK}
+            roughness={0.74}
+            metalness={0}
+            sheen={0.75}
+            sheenRoughness={0.88}
+            sheenColor="#ffbcca"
+          />
         </mesh>
 
-        {/* muso: grande e acceso, ma stretto quanto basta da non mangiare gli
-            occhi — che restano l'elemento eroe del volto */}
-        <mesh position={[0, -0.13, 0.42]} scale={[1.05, 0.82, 0.78]}>
+        {/* muso: rotondo e acceso in primo piano. Sta BASSO, sotto gli occhi:
+            cosi' la fronte resta libera e l'elmetto puo' scendere fino a
+            coprirla invece di fermarsi a una fascia sottile */}
+        <mesh position={[0, -0.2, 0.42]} scale={[1.05, 0.82, 0.78]}>
           <sphereGeometry args={[0.2, 30, 24]} />
-          <meshStandardMaterial color={SNOUT} roughness={0.48} />
+          <meshPhysicalMaterial color={SNOUT} roughness={0.62} sheen={0.55} sheenRoughness={0.8} sheenColor="#ffc3cd" />
         </mesh>
         {[-1, 1].map((side) => (
-          <mesh key={`nostril-${side}`} position={[side * 0.085, -0.12, 0.565]} scale={[1, 0.85, 0.55]}>
+          <mesh key={`nostril-${side}`} position={[side * 0.085, -0.19, 0.565]} scale={[1, 0.85, 0.55]}>
             <sphereGeometry args={[0.045, 14, 12]} />
             <meshStandardMaterial color={PINK_DARK} roughness={0.55} />
           </mesh>
         ))}
 
         {/* sorriso: subito sotto il muso */}
-        <mesh position={[0, -0.33, 0.39]} rotation={[0, 0, Math.PI]}>
+        <mesh position={[0, -0.39, 0.325]} rotation={[0, 0, Math.PI]}>
           <torusGeometry args={[0.1, 0.018, 8, 28, Math.PI * 0.95]} />
           <meshStandardMaterial color="#a8495a" roughness={0.5} />
         </mesh>
 
         {/* guance paffute e arrossate, ai lati del muso */}
         {[-1, 1].map((side) => (
-          <mesh key={`cheek-${side}`} position={[side * 0.3, -0.13, 0.29]} scale={[0.7, 0.6, 0.45]}>
+          <mesh key={`cheek-${side}`} position={[side * 0.3, -0.19, 0.29]} scale={[0.7, 0.6, 0.45]}>
             <sphereGeometry args={[0.19, 18, 16]} />
-            <meshStandardMaterial color="#ff8ea3" roughness={0.62} />
+            <meshPhysicalMaterial
+              color="#ff8ea3"
+              roughness={0.8}
+              sheen={0.9}
+              sheenRoughness={0.9}
+              sheenColor="#ff6d86"
+            />
           </mesh>
         ))}
 
-        {/* occhioni azzurri, grandi, con riflessi cartoon */}
+        {/* occhioni azzurri: scendono sul volto (non in fronte) e hanno pupilla
+            grande piu' TRE riflessi bianchi, per restare luminosi anche con
+            l'illuminazione tutta calda */}
         {[-0.235, 0.235].map((x) => (
-          <group key={`eye-${x}`} position={[x, 0.02, 0.35]} scale={0.9}>
+          <group key={`eye-${x}`} position={[x, -0.02, 0.35]} scale={0.9}>
             <mesh>
               <sphereGeometry args={[0.165, 26, 22]} />
               <meshStandardMaterial color="#fdfefe" roughness={0.18} />
             </mesh>
             <mesh position={[0, 0, 0.098]}>
-              <sphereGeometry args={[0.112, 22, 18]} />
+              <sphereGeometry args={[0.118, 22, 18]} />
               <meshStandardMaterial
-                color="#4fb2f2"
-                emissive="#1f74c4"
-                emissiveIntensity={0.3}
-                roughness={0.15}
+                color="#58bdf7"
+                emissive="#2b86d8"
+                emissiveIntensity={0.55}
+                roughness={0.14}
                 metalness={0.05}
               />
             </mesh>
             <mesh position={[0, 0, 0.148]}>
-              <sphereGeometry args={[0.058, 18, 16]} />
-              <meshStandardMaterial color="#0a1018" roughness={0.12} />
+              <sphereGeometry args={[0.068, 18, 16]} />
+              <meshStandardMaterial color="#080d14" roughness={0.1} />
             </mesh>
             {/* riflesso principale, grande */}
-            <mesh position={[-0.05, 0.058, 0.155]}>
-              <sphereGeometry args={[0.054, 16, 14]} />
-              <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.4} roughness={0.08} />
+            <mesh position={[-0.055, 0.062, 0.175]}>
+              <sphereGeometry args={[0.062, 16, 14]} />
+              <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.7} roughness={0.06} />
             </mesh>
-            {/* riflesso secondario */}
-            <mesh position={[0.048, -0.052, 0.15]}>
-              <sphereGeometry args={[0.025, 12, 10]} />
-              <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.3} roughness={0.08} />
+            {/* riflesso laterale piccolo */}
+            <mesh position={[0.056, 0.052, 0.17]}>
+              <sphereGeometry args={[0.022, 12, 10]} />
+              <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.6} roughness={0.06} />
+            </mesh>
+            {/* riflesso in basso, chiude il cerchio dell'occhio */}
+            <mesh position={[0.05, -0.05, 0.172]}>
+              <sphereGeometry args={[0.03, 12, 10]} />
+              <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.55} roughness={0.06} />
             </mesh>
           </group>
         ))}
 
         {/* ===== ORECCHIE: grandi, fuori dall'elmetto ===== */}
-        <group ref={earL} position={[-0.47, 0.2, -0.04]} rotation={[0, 0, 0.55]}>
-          <mesh scale={[0.5, 1.1, 0.3]}>
+        {/* ORECCCHIE: devono stare FUORI dal guscio del casco, altrimenti il
+            casco le ingoia. Il centro sta a R≈0.57 dal centro del casco
+            (CAP_R 0.545) e la base resta sepolta dentro la testa. */}
+        <group ref={earL} position={[-0.5, 0.3, -0.04]} rotation={[0, 0, 0.55]}>
+          <mesh scale={[0.46, 1.05, 0.3]}>
             <sphereGeometry args={[0.26, 22, 18]} />
-            <meshStandardMaterial color={PINK} roughness={0.62} />
+            <meshPhysicalMaterial color={PINK} roughness={0.74} sheen={0.75} sheenRoughness={0.88} sheenColor="#ffbcca" />
           </mesh>
-          <mesh position={[0, 0.03, 0.06]} scale={[0.34, 0.84, 0.24]}>
+          <mesh position={[0, 0.03, 0.06]} scale={[0.32, 0.8, 0.24]}>
             <sphereGeometry args={[0.24, 18, 14]} />
-            <meshStandardMaterial color="#ff93a6" roughness={0.66} />
+            <meshPhysicalMaterial color="#ff93a6" roughness={0.8} sheen={0.6} sheenRoughness={0.85} sheenColor="#ff8098" />
           </mesh>
         </group>
-        <group ref={earR} position={[0.47, 0.2, -0.04]} rotation={[0, 0, -0.55]}>
-          <mesh scale={[0.5, 1.1, 0.3]}>
+        <group ref={earR} position={[0.5, 0.3, -0.04]} rotation={[0, 0, -0.55]}>
+          <mesh scale={[0.46, 1.05, 0.3]}>
             <sphereGeometry args={[0.26, 22, 18]} />
-            <meshStandardMaterial color={PINK} roughness={0.62} />
+            <meshPhysicalMaterial color={PINK} roughness={0.74} sheen={0.75} sheenRoughness={0.88} sheenColor="#ffbcca" />
           </mesh>
-          <mesh position={[0, 0.03, 0.06]} scale={[0.34, 0.84, 0.24]}>
+          <mesh position={[0, 0.03, 0.06]} scale={[0.32, 0.8, 0.24]}>
             <sphereGeometry args={[0.24, 18, 14]} />
-            <meshStandardMaterial color="#ff93a6" roughness={0.66} />
+            <meshPhysicalMaterial color="#ff93a6" roughness={0.8} sheen={0.6} sheenRoughness={0.85} sheenColor="#ff8098" />
           </mesh>
         </group>
 
@@ -514,12 +591,34 @@ function PigRider() {
         {/* unica superficie: l'apertura del viso e' un arco lisco, vedi
             aviatorCapGeometry */}
         <mesh position={CAP_OFFSET} geometry={capGeometry}>
-          <meshStandardMaterial color={LEATHER} roughness={0.68} metalness={0.05} />
+          {/* pelle nera OPACA.
+              Prima aveva un clearcoat forte: la cupola prendeva un riflesso
+              gigante e sembrava una visiera in plastica. La pelle del casco
+              riflette poco e in modo diffuso — solo il bordo e i lacci sono
+              leggermente piu' lucidi. */}
+          <meshPhysicalMaterial
+            color="#151318"
+            roughness={0.78}
+            metalness={0.04}
+            clearcoat={0.18}
+            clearcoatRoughness={0.6}
+            sheen={0.35}
+            sheenRoughness={0.9}
+            sheenColor="#5a4a3c"
+            side={THREE.DoubleSide}
+          />
         </mesh>
 
-        {/* SCRITTA SPONKY sulla fronte */}
+        {/* LACCI DELL'ELMETTO: scendono dai lati della cupola e si annodano
+            sotto il mento. Sono la lettura piu' chiara di "casco in pelle
+            allacciato" e ancorano il bordo inferiore della apertura. */}
+
+        {/* SCRITTA SPONKY sulla fronte del casco.
+            theta 0.75..1.05: resta fra il bordo del casco (1.10) e le lenti
+            (che scendono fino a y≈0.43, cioe' theta≈0.76 ai lati del testo).
+            phi 1.15 la tiene interamente sul fronte, senza girare sugli fianchi. */}
         <mesh position={CAP_OFFSET} renderOrder={3}>
-          <sphereGeometry args={[0.553, 40, 20, Math.PI / 2 - 0.475, 0.95, 0.593, 0.28]} />
+          <sphereGeometry args={[0.553, 44, 22, Math.PI / 2 - 0.575, 1.15, 0.75, 0.3]} />
           <meshStandardMaterial
             map={foreheadText}
             transparent
