@@ -109,6 +109,13 @@ check("POST admin senza CSRF respinto (403)", noCsrf.status === 403, `status ${n
 const adminView = await call("/content", { admin: true });
 check("GET da admin ha admin: true", adminView.payload?.admin === true);
 
+const me = await call("/me", { admin: true });
+check(
+  "GET /api/me restituisce il token CSRF della sessione",
+  typeof me.payload?.csrfToken === "string" && me.payload.csrfToken === cookies.get("sponky_csrf"),
+  "serve al front dopo un ricaricamento di pagina, quando la memoria e' vuota",
+);
+
 /* 6. CRUD evento -------------------------------------------------------- */
 const created = await call("/content?type=events", { method: "POST", body: eventPayload, admin: true });
 const eventId = created.payload?.item?.id;
