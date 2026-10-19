@@ -1,5 +1,3 @@
-import { asset } from "@/lib/asset";
-
 /**
  * Dati social della pagina.
  *
@@ -161,58 +159,45 @@ export async function loadSocialStats(): Promise<SocialStats> {
   }
 }
 
-export type SocialPost = {
+export type InstagramPost = {
   id: string;
-  platform: SocialPlatformKey;
+  /** Permalink pubblico del post: e' l'embed ufficiale di Instagram a renderlo. */
+  url: string;
+  /**
+   * Inizio della didascalia reale del post (letta dal post il 19 ott 2026).
+   * Serve solo come rete di sicurezza: se l'embed non riesce a disegnarsi —
+   * succede quando il browser blocca i contenuti di terze parti — la scheda
+   * resta leggibile invece di mostrare un riquadro vuoto.
+   */
   caption: string;
-  place: string;
-  likes: number;
-  comments: number;
-  /** "3 h", "ieri", ... */
-  ago: string;
-  image: string;
 };
 
-/** Le ultime uscite, con copertine prese dal set delle 52 grafiche evento. */
-export const socialPosts: SocialPost[] = [
+/**
+ * Post reali del profilo @sponkysquad, dal piu' recente (ordine verificato
+ * sull'account il 19 ott 2026). Niente contenuti inventati: didascalia,
+ * immagine e like li serve Instagram dentro l'embed ufficiale, quindi restano
+ * corretti anche fra sei mesi. Per cambiare la selezione basta sostituire i link
+ * (tutti verificati pubblici e attivi) e riportare la didascalia accanto.
+ */
+export const instagramPosts: InstagramPost[] = [
   {
-    id: "sp-1",
-    platform: "instagram",
-    caption: "Night pack: 40 moto, zero ritardi, un solo semaforo rosso di troppo.",
-    place: "Milano → Lago di Como",
-    likes: 1842,
-    comments: 96,
-    ago: "3 h",
-    image: asset("/assets/event-art/art-01.svg"),
+    id: "ig-1",
+    url: "https://www.instagram.com/reel/Deg66YhuNUa/",
+    caption: "FESTA DI NATALE 2026 \u{1F385} Info e iscrizioni : sponkysquad.it",
   },
   {
-    id: "sp-2",
-    platform: "facebook",
-    caption: "Iscrizioni aperte per il Track Pulse a Cremona: restano 12 posti.",
-    place: "Cremona Circuit",
-    likes: 612,
-    comments: 74,
-    ago: "7 h",
-    image: asset("/assets/event-art/art-10.svg"),
+    id: "ig-2",
+    url: "https://www.instagram.com/p/DefCYuVEVUg/",
+    caption: "Idea : Trekking Fotografico \u{1F631} \u{1F4F8} Ci sono posti che sembrano usciti da una cartolina\u2026",
   },
   {
-    id: "sp-3",
-    platform: "instagram",
-    caption: "Dolomiti in frontaliera: il briefing delle 6:00 vale la sveglia.",
-    place: "Passo Giau",
-    likes: 2104,
-    comments: 131,
-    ago: "ieri",
-    image: asset("/assets/event-art/art-16.svg"),
+    id: "ig-3",
+    url: "https://www.instagram.com/p/DePgbKPEXUR/",
+    caption: "FESTA DI NATALE 2026 \u{1F385} Il 2026 ci ha regalato chilometri, curve, amicizie, risate, eventi\u2026",
   },
   {
-    id: "sp-4",
-    platform: "instagram",
-    caption: "Nuova convenzione attiva per chi porta la tessera digitale.",
-    place: "Partner ufficiali",
-    likes: 947,
-    comments: 38,
-    ago: "2 gg",
-    image: asset("/assets/event-art/art-07.svg"),
+    id: "ig-4",
+    url: "https://www.instagram.com/p/Dd_Yxn1ETEH/",
+    caption: "\u{1F3CD}\uFE0F SponkySquad sta cercando nuovi commerciali in tutta Italia. Siamo una piattaforma di servizi\u2026",
   },
 ];

@@ -1,9 +1,24 @@
 import { Environment, PerspectiveCamera } from "@react-three/drei";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
-import { Suspense, useMemo, useRef } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
+import { asset } from "@/lib/asset";
 import { HellcatModel } from "@/three/HellcatModel";
+
+/**
+ * HDR di ambiente servito in locale. Prima arrivava dal CDN di drei
+ * (raw.githubusercontent.com) e ci metteva anche 10 secondi: l'Environment e'
+ * in Suspense, quindi per tutto quel tempo la scena restava vuota. Ora e' un
+ * file nostro, sulla stessa origine.
+ */
+const ENV_PATH = asset("/env/venice_sunset_1k.hdr");
+
+/** Nessun fotogramma deve avanzare di piu' di questo (secondi): dopo una pausa
+ *  lunga (hero fuori schermo) il delta del clock sarebbe enorme e farebbe
+ *  saltare ruote e strada. */
+const MAX_DELTA = 0.05;
+
 function RoadPlane() {
   const mesh = useRef<THREE.Mesh>(null);
   const texture = useMemo(() => {
@@ -26,7 +41,7 @@ function RoadPlane() {
   }, []);
 
   useFrame((_, delta) => {
-    texture.offset.y -= delta * 0.035;
+    texture.offset.y -= Math.min(delta, MAX_DELTA) * 0.035;
     if (mesh.current) {
       mesh.current.position.z = Math.sin(performance.now() * 0.0004) * 0.04;
     }
@@ -95,19 +110,27 @@ function WarmHalo() {
  * Illuminazione: solo temperature calde. Le luci fredde (ciano/blu) che
  * appiattivano il volto sono state tolte del tutto — restano arancio, ambra e
  * rosa, le stesse tinte del cerchio del logo.
+ *
+ * Il tempo viene accumulato a mano (clampato) invece di usare
+ * clock.elapsedTime: cosi' quando la scena riparte, dopo essere stata ferma
+ * fuori schermo, le luci non saltano di colpo in una posizione diversa.
  */
 function DynamicLights() {
   const rim = useRef<THREE.PointLight>(null);
   const warm = useRef<THREE.PointLight>(null);
+  const elapsed = useRef(0);
 
-  useFrame((state) => {
+  useFrame((_, delta) => {
+    elapsed.current += Math.min(delta, MAX_DELTA);
+    const time = elapsed.current;
+
     if (rim.current) {
-      rim.current.position.x = Math.sin(state.clock.elapsedTime * 0.7) * 2.6;
-      rim.current.intensity = 5.5 + Math.sin(state.clock.elapsedTime * 1.1) * 1.1;
+      rim.current.position.x = Math.sin(time * 0.7) * 2.6;
+      rim.current.intensity = 5.5 + Math.sin(time * 1.1) * 1.1;
     }
     if (warm.current) {
-      warm.current.position.x = Math.cos(state.clock.elapsedTime * 0.55) * 2.4;
-      warm.current.intensity = 3.6 + Math.cos(state.clock.elapsedTime * 0.9) * 0.8;
+      warm.current.position.x = Math.cos(time * 0.55) * 2.4;
+      warm.current.intensity = 3.6 + Math.cos(time * 0.9) * 0.8;
     }
   });
 
@@ -133,28 +156,85 @@ function DynamicLights() {
   );
 }
 
+/**
+ * Motore del loop di render. Il Canvas e' in "demand": disegna solo quando
+ * qualcuno lo invalida. Qui si invalida soltanto finche' la hero e' in vista,
+ * quindi mentre l'utente legge il resto della pagina la GPU resta ferma
+ * (prima la scena continuava a girare a piena velocita' anche a 10.000 px di
+ * distanza, ed era quello a far "laggare" lo scroll).
+ */
+function SceneRunner({ active }: { active: boolean }) {
+  const invalidate = useThree((state) => state.invalidate);
+  const activeRef = useRef(active);
+  activeRef.current = active;
+
+  useEffect(() => {
+    if (active) invalidate();
+  }, [active, invalidate]);
+
+  useFrame(() => {
+    if (activeRef.current) invalidate();
+  });
+
+  return null;
+}
+
+/** true finche' l'elemento e' (anche solo in parte) in viewport. */
+function useInView(element: { current: HTMLElement | null }) {
+  const [inView, setInView] = useState(true);
+
+  useEffect(() => {
+    const node = element.current;
+    if (!node || typeof IntersectionObserver === "undefined") return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const last = entries[entries.length - 1];
+        if (last) setInView(last.isIntersecting);
+      },
+      // un margine generoso fa ripartire la scena poco prima che entri in vista
+      { rootMargin: "220px 0px" },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [element]);
+
+  return inView;
+}
+
 export function BikeScene() {
+  const host = useRef<HTMLDivElement>(null);
+  const inView = useInView(host);
+
   return (
-    <Canvas
-      frameloop="demand"
-      dpr={[0.8, 1.15]}
-      performance={{ min: 0.35 }}
-      gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
-    >
-      <color attach="background" args={["#120a09"]} />
-      <fog attach="fog" args={["#120a09", 6.4, 13.5]} />
-      <PerspectiveCamera makeDefault position={[0.12, 0.62, 6.4]} fov={34} />
-      <Suspense fallback={null}>
+    <div ref={host} className="h-full w-full">
+      <Canvas
+        frameloop="demand"
+        dpr={[0.8, 1.15]}
+        performance={{ min: 0.35 }}
+        gl={{ antialias: false, alpha: true, powerPreference: "high-performance" }}
+      >
+        <color attach="background" args={["#120a09"]} />
+        <fog attach="fog" args={["#120a09", 6.4, 13.5]} />
+        <PerspectiveCamera makeDefault position={[0.12, 0.62, 6.4]} fov={34} />
+        <SceneRunner active={inView} />
+        {/* Poca roba, tutta locale: si disegna subito. */}
         <DynamicLights />
         <WarmHalo />
         <RoadPlane />
-        <HellcatModel />
-        <Environment preset="sunset" environmentIntensity={0.85} />
+        {/* Ambiente e moto si agganciano appena sono pronti: ciascuno ha il suo
+            Suspense, cosi' il ritardo di uno non blocca l'altro. */}
+        <Suspense fallback={null}>
+          <Environment files={ENV_PATH} environmentIntensity={0.85} />
+        </Suspense>
+        <Suspense fallback={null}>
+          <HellcatModel />
+        </Suspense>
         <EffectComposer multisampling={0} enableNormalPass={false}>
           <Bloom luminanceThreshold={0.34} intensity={0.4} mipmapBlur />
           <Vignette eskil={false} offset={0.24} darkness={0.42} />
         </EffectComposer>
-      </Suspense>
-    </Canvas>
+      </Canvas>
+    </div>
   );
 }

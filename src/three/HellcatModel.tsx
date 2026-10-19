@@ -1,7 +1,8 @@
 import { Float, useGLTF } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
+import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { asset } from "@/lib/asset";
 
 /**
@@ -22,6 +23,10 @@ const MODEL_PATH = asset("/models/hellcat.glb");
 /** Lunghezza della moto in unita' di scena (il modello misura 2.218 m). */
 const TARGET_LENGTH = 2.9;
 
+/** Salto di tempo massimo per fotogramma (secondi). Dopo una pausa lunga il
+ *  delta del clock sarebbe enorme e farebbe scattare ruote e vibrazione. */
+const MAX_DELTA = 0.05;
+
 type Placement = { position: [number, number, number]; scale: number; rotY: number };
 
 /**
@@ -41,9 +46,33 @@ function usePlacement(): Placement {
   }, [width]);
 }
 
-/** Materiali: piu' riflessi, e le superfici opache non devono spegnersi. */
-function tuneMaterials(scene: THREE.Object3D) {
-  scene.traverse((object) => {
+/**
+ * Colori di base presi dal pacchetto originale (FILE/Model/hellcat.mtl).
+ *
+ * L'export GLB ha perso il colore di "Black Metal" e "matte silver" — senza
+ * baseColorFactor il loader li legge bianchi — quindi la moto perdeva il
+ * contrasto nero/argento dei render. Qui si rimettono i valori del file, in
+ * forma lineare (come li legge il loader glTF, non sRGB).
+ */
+const PACK_BASE_COLORS: Record<string, [number, number, number]> = {
+  "Black Metal": [0.017388, 0.017388, 0.017388],
+  "matte silver": [0.401851, 0.401851, 0.401851],
+  emission: [0.8, 0.8, 0.8],
+  "tail light": [0.8, 0.8, 0.8],
+};
+
+/**
+ * Materiali: colori del pacchetto, riflessi neutri e superfici opache accese.
+ *
+ * Il modello non ha texture (il Readme del pacchetto lo dice: solo materiali
+ * Blender), quindi i "colori" sono i valori dei materiali. Due cose li
+ * alteravano: le due basi bianche perse nell'export e l'ambiente della scena,
+ * un tramonto caldo che tinse di arancio tutto il metallo. Con l'ambiente
+ * neutro qui sotto cromo, argento e rame tornano come nei render, mentre la
+ * scena intorno resta calda come prima.
+ */
+function tuneMaterials(source: THREE.Object3D, neutralEnv: THREE.Texture) {
+  source.traverse((object) => {
     if (!(object instanceof THREE.Mesh)) return;
 
     object.castShadow = false;
@@ -54,15 +83,12 @@ function tuneMaterials(scene: THREE.Object3D) {
       if (!material) continue;
 
       if (material instanceof THREE.MeshStandardMaterial) {
-        material.envMapIntensity = 1.3;
-        material.roughness = Math.max(material.roughness, 0.24);
-        material.metalness = Math.max(material.metalness, 0.12);
-        // la vernice del serbatoio e' molto scura: senza un minimo di emissive
-        // si perde nel fondo nero della scena
-        if (material.color && material.color.getHSL({ h: 0, s: 0, l: 0 }).l < 0.06) {
-          material.emissive = new THREE.Color("#1a0f08");
-          material.emissiveIntensity = 0.28;
-        }
+        const pack = PACK_BASE_COLORS[material.name];
+        if (pack) material.color.setRGB(pack[0], pack[1], pack[2], THREE.LinearSRGBColorSpace);
+
+        material.envMap = neutralEnv;
+        material.envMapIntensity = 0.9;
+        material.roughness = Math.max(material.roughness, 0.12);
       }
 
       // Le luci posteriori del modello sono emissive: si tengono accese ma
@@ -76,9 +102,9 @@ function tuneMaterials(scene: THREE.Object3D) {
 }
 
 /** Prepara una copia del modello: materiali, scala, centratura, appoggio. */
-function prepare(source: THREE.Object3D) {
+function prepare(source: THREE.Object3D, neutralEnv: THREE.Texture) {
   const clone = source.clone(true);
-  tuneMaterials(clone);
+  tuneMaterials(clone, neutralEnv);
 
   // Il pacchetto contiene anche il pavimento di Blender ("Plane"): qui la
   // scena ha gia' la sua strada, quindi quel piano va nascosto.
@@ -119,17 +145,40 @@ export function HellcatModel() {
   const gltf = useGLTF(MODEL_PATH);
   const place = usePlacement();
   const group = useRef<THREE.Group>(null);
+  const elapsed = useRef(0);
   const { mouse } = useThree();
+  const gl = useThree((state) => state.gl);
+
+  /**
+   * Ambiente neutro da studio (RoomEnvironment, incluso in three) usato solo
+   * come envMap dei materiali della moto: e' la luce che nei render del
+   * pacchetto fa leggere cromo, argento e rame per quello che sono. La scena
+   * intorno continua a usare l'HDR del tramonto.
+   */
+  const neutralEnv = useMemo(() => {
+    const pmrem = new THREE.PMREMGenerator(gl);
+    const texture = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    pmrem.dispose();
+    return texture;
+  }, [gl]);
+
+  useEffect(() => () => neutralEnv.dispose(), [neutralEnv]);
 
   const { scene, wheels } = useMemo(() => {
-    const prepared = prepare(gltf.scene);
+    const prepared = prepare(gltf.scene, neutralEnv);
     return { scene: prepared, wheels: collectWheels(prepared) };
-  }, [gltf.scene]);
+  }, [gltf.scene, neutralEnv]);
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
+    // Il loop e' pilotato da BikeScene (SceneRunner): qui non si invalida piu',
+    // altrimenti la scena continuerebbe a girare anche fuori schermo.
+    const step = Math.min(delta, MAX_DELTA);
+    elapsed.current += step;
+    const time = elapsed.current;
+
     // Ruote in rotazione: la strada scorre, quindi la moto deve "camminare".
     for (const wheel of wheels) {
-      wheel.rotation.x -= delta * 1.7;
+      wheel.rotation.x -= step * 1.7;
     }
 
     if (group.current) {
@@ -145,14 +194,11 @@ export function HellcatModel() {
         0.045,
       );
       // vibrazione del minimo
-      const idle = state.clock.elapsedTime * 26;
+      const idle = time * 26;
       group.current.position.y =
-        place.position[1] + Math.sin(state.clock.elapsedTime * 0.9) * 0.02 + Math.sin(idle) * 0.0022;
+        place.position[1] + Math.sin(time * 0.9) * 0.02 + Math.sin(idle) * 0.0022;
       group.current.rotation.z = Math.sin(idle * 0.5) * 0.0026;
     }
-
-    // frameloop "demand": senza invalidate l'animazione si fermerebbe al primo frame
-    state.invalidate();
   });
 
   return (

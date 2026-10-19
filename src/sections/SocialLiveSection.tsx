@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useInView } from "framer-motion";
-import { ArrowUpRight, Facebook, Heart, Instagram, MessageCircle, Radio } from "lucide-react";
+import { ArrowUpRight, Facebook, Instagram, Radio } from "lucide-react";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { SectionHeader } from "@/components/SectionHeader";
-import { loadSocialStats, socialPosts, socialSnapshot, type SocialPlatform, type SocialStats } from "@/data/social";
+import { instagramPosts, loadSocialStats, socialSnapshot, type InstagramPost, type SocialPlatform, type SocialStats } from "@/data/social";
 import { cn, formatNumber } from "@/lib/utils";
 
 /**
@@ -202,52 +202,115 @@ function PlatformCard({
   );
 }
 
-function PostCard({ post }: { post: (typeof socialPosts)[number] }) {
-  const Icon = PlatformIcon[post.platform];
-  const accent = accentClass[post.platform];
+const IG_EMBED_SCRIPT = "https://www.instagram.com/embed.js";
+
+/** Sotto questa altezza l'embed non si e' disegnato (Instagram lo fa a 0 px). */
+const IG_MIN_HEIGHT = 140;
+
+/**
+ * Il blockquote ufficiale di Instagram, in forma di stringa.
+ *
+ * Instagram lo sostituisce con il proprio iframe, cioe' un nodo che nasce fuori
+ * da React: montarlo con dangerouslySetInnerHTML evita che React provi a
+ * rimuovere un elemento che nel frattempo e' stato rimpiazzato. Lo stile
+ * (min-width 326px, max-width 540px) e' quello richiesto da Instagram.
+ */
+function instagramBlockquote(url: string) {
+  return `<blockquote class="instagram-media" data-instgrm-permalink="${url}" data-instgrm-version="14" data-instgrm-captioned style="background:#FFF;border:0;border-radius:3px;box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15);margin:1px;max-width:540px;min-width:326px;padding:0;width:100%;"></blockquote>`;
+}
+
+type InstgrmWindow = Window & { instgrm?: { Embeds: { process: () => void } } };
+
+/** Carica una sola volta lo script ufficiale e gli fa processare i blockquote. */
+function useInstagramEmbedScript() {
+  useEffect(() => {
+    const w = window as InstgrmWindow;
+    const process = () => w.instgrm?.Embeds?.process();
+
+    if (w.instgrm) {
+      process();
+      return;
+    }
+
+    const existing = document.querySelector<HTMLScriptElement>(`script[src="${IG_EMBED_SCRIPT}"]`);
+    const script = existing ?? document.createElement("script");
+    script.addEventListener("load", process);
+    if (!existing) {
+      script.src = IG_EMBED_SCRIPT;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+    return () => script.removeEventListener("load", process);
+  }, []);
+}
+
+/**
+ * Un post vero dentro l'embed ufficiale di Instagram: immagine, didascalia e
+ * like sono quelli pubblicati, serviti da Instagram — nessun numero copiato a
+ * mano che possa invecchiare o risultare inventato.
+ *
+ * Se l'embed non si disegna (contenuti di terze parti bloccati, rete lenta)
+ * la scheda non resta vuota: mostra la didascalia reale del post e il link.
+ */
+function InstagramPostCard({ post }: { post: InstagramPost }) {
+  const holder = useRef<HTMLDivElement>(null);
+  const [embedDown, setEmbedDown] = useState(false);
+
+  useEffect(() => {
+    let tries = 0;
+    const timer = window.setInterval(() => {
+      tries += 1;
+      const frame = holder.current?.querySelector("iframe");
+      if (frame && frame.clientHeight >= IG_MIN_HEIGHT) {
+        setEmbedDown(false);
+        window.clearInterval(timer);
+        return;
+      }
+      if (tries >= 7) {
+        setEmbedDown(true);
+        window.clearInterval(timer);
+      }
+    }, 1500);
+    return () => window.clearInterval(timer);
+  }, []);
 
   return (
-    <a
-      href={post.platform === "instagram" ? "https://www.instagram.com/sponkysquad/" : "https://www.facebook.com/groups/427025827080072"}
-      target="_blank"
-      rel="noreferrer"
+    <div
+      ref={holder}
       data-reveal
-      className="group flex min-h-9 flex-col overflow-hidden rounded-lg border border-white/10 bg-white/5 transition hover:border-white/25 hover:bg-white/8"
+      className="flex h-full w-full flex-col justify-center gap-3 overflow-hidden rounded-lg border border-white/10 bg-white/5 p-3"
     >
-      <div className="relative aspect-4/5 overflow-hidden bg-asphalt-900">
-        <img
-          src={post.image}
-          alt={post.caption}
-          loading="lazy"
-          decoding="async"
-          className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
-        />
-        <div className="absolute inset-0 bg-linear-to-t from-asphalt-950 via-asphalt-950/25 to-transparent" />
-        <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-asphalt-950/85 px-2.5 py-1 text-[0.65rem] font-extrabold uppercase text-white backdrop-blur-sm">
-          <Icon className={cn("h-3 w-3", accent)} aria-hidden="true" />
-          {post.ago}
-        </span>
-        <p className="absolute bottom-0 left-0 right-0 p-3 text-sm font-semibold leading-5 text-white/92">{post.caption}</p>
-      </div>
-      <div className="flex items-center justify-between gap-3 px-3 py-3">
-        <p className="min-w-0 truncate text-xs font-bold uppercase text-white/48">{post.place}</p>
-        <p className="flex shrink-0 items-center gap-3 text-xs font-bold text-white/56">
-          <span className="inline-flex items-center gap-1">
-            <Heart className={cn("h-3.5 w-3.5", accent)} aria-hidden="true" />
-            {formatNumber(post.likes)}
-          </span>
-          <span className="inline-flex items-center gap-1">
-            <MessageCircle className={cn("h-3.5 w-3.5", accent)} aria-hidden="true" />
-            {formatNumber(post.comments)}
-          </span>
-        </p>
-      </div>
-    </a>
+      <div
+        className={embedDown ? "hidden" : "flex w-full justify-center"}
+        dangerouslySetInnerHTML={{ __html: instagramBlockquote(post.url) }}
+      />
+      {embedDown && (
+        <>
+          <p className="text-sm font-semibold leading-6 text-white/86">{post.caption}</p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase text-white/44">
+              <Instagram className="h-3.5 w-3.5 text-racing-orange" aria-hidden="true" />
+              @sponkysquad
+            </span>
+            <a
+              href={post.url}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-white/14 bg-white/8 px-3.5 text-xs font-bold uppercase text-white transition hover:border-white/28 hover:bg-white/12"
+            >
+              Apri il post
+              <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+            </a>
+          </div>
+        </>
+      )}
+    </div>
   );
 }
 
 export function SocialLiveSection() {
   const [stats, setStats] = useState<SocialStats>(socialSnapshot);
+  useInstagramEmbedScript();
 
   useEffect(() => {
     let cancelled = false;
@@ -301,13 +364,13 @@ export function SocialLiveSection() {
             Post recenti
           </h3>
           <p data-reveal className="text-sm font-bold uppercase text-white/44">
-            Ultimi 7 giorni
+            Dal profilo Instagram
           </p>
         </div>
 
-        <div className="mt-6 grid gap-4 min-[480px]:grid-cols-2 xl:grid-cols-4">
-          {socialPosts.map((post) => (
-            <PostCard key={post.id} post={post} />
+        <div className="mt-6 grid gap-4 md:grid-cols-2">
+          {instagramPosts.map((post) => (
+            <InstagramPostCard key={post.id} post={post} />
           ))}
         </div>
       </div>
