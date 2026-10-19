@@ -1,0 +1,179 @@
+<svg width="720" height="900" viewBox="0 0 720 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="mpBg" x1="360" y1="0" x2="360" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0A0B12"/>
+      <stop offset=".55" stop-color="#12141D"/>
+      <stop offset="1" stop-color="#0B0C12"/>
+    </linearGradient>
+    <linearGradient id="mpWall" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#1A1D28"/>
+      <stop offset="1" stop-color="#0D0F16"/>
+    </linearGradient>
+    <radialGradient id="mpLamp" cx=".5" cy="0" r="1">
+      <stop stop-color="#FFE7C4" stop-opacity=".85"/>
+      <stop offset=".55" stop-color="#FFB067" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#FF7A18" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="mpNeonPool">
+      <stop stop-color="#19E6FF" stop-opacity=".42"/>
+      <stop offset="1" stop-color="#19E6FF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="mpOrangePool">
+      <stop stop-color="#FF7A18" stop-opacity=".4"/>
+      <stop offset="1" stop-color="#FF7A18" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="mpVignette">
+      <stop offset=".52" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000" stop-opacity=".74"/>
+    </radialGradient>
+    <filter id="mpBlur24" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="24"/>
+    </filter>
+    <filter id="mpBlur10" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="10"/>
+    </filter>
+    <filter id="mpBlur4" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="4"/>
+    </filter>
+  </defs>
+
+  <rect width="720" height="900" fill="url(#mpBg)"/>
+
+  <!-- parete garage / locale -->
+  <path d="M0 0H720V470H0Z" fill="url(#mpWall)"/>
+  <g stroke="#FFFFFF" stroke-opacity=".05">
+    <path d="M0 96H720M0 192H720M0 288H720M0 384H720"/>
+    <path d="M120 0V470M300 0V470M480 0V470M640 0V470"/>
+  </g>
+  <!-- travi -->
+  <rect x="0" y="70" width="720" height="14" fill="#0A0B12" opacity=".9"/>
+  <rect x="0" y="84" width="720" height="4" fill="#FF7A18" opacity=".35"/>
+
+  <!-- insegna al neon SPONKY -->
+  <g>
+    <rect x="150" y="130" width="420" height="112" rx="16" fill="#0A0B12" stroke="#FFFFFF" stroke-opacity=".1"/>
+    <g filter="url(#mpBlur10)" opacity=".95">
+      <rect x="180" y="158" width="360" height="56" rx="10" fill="none" stroke="#19E6FF" stroke-width="5"/>
+    </g>
+    <rect x="180" y="158" width="360" height="56" rx="10" fill="none" stroke="#19E6FF" stroke-width="3"/>
+    <g filter="url(#mpBlur10)">
+      <text
+        x="360"
+        y="202"
+        text-anchor="middle"
+        font-family="Arial Black, Arial, Helvetica, sans-serif"
+        font-size="42"
+        font-weight="900"
+        letter-spacing="6"
+        fill="#FF7A18"
+      >SPONKY</text>
+    </g>
+    <text
+      x="360"
+      y="202"
+      text-anchor="middle"
+      font-family="Arial Black, Arial, Helvetica, sans-serif"
+      font-size="42"
+      font-weight="900"
+      letter-spacing="6"
+      fill="#FFB877"
+    >SPONKY</text>
+  </g>
+
+  <!-- lampade sospese -->
+  <g>
+    <path d="M120 84V176M360 84V150M600 84V186" stroke="#0A0B12" stroke-width="5"/>
+    <g>
+      <path d="M96 176H144L154 210H86Z" fill="#171A24"/>
+      <ellipse cx="120" cy="212" rx="34" ry="10" fill="#FFE7C4"/>
+      <path d="M60 212H180L260 470H-20Z" fill="url(#mpLamp)"/>
+    </g>
+    <g>
+      <path d="M336 150H384L394 184H326Z" fill="#171A24"/>
+      <ellipse cx="360" cy="186" rx="34" ry="10" fill="#FFE7C4"/>
+      <path d="M300 186H420L500 470H220Z" fill="url(#mpLamp)"/>
+    </g>
+    <g>
+      <path d="M576 186H624L634 220H566Z" fill="#171A24"/>
+      <ellipse cx="600" cy="222" rx="34" ry="10" fill="#FFE7C4"/>
+      <path d="M540 222H660L740 470H460Z" fill="url(#mpLamp)"/>
+    </g>
+  </g>
+
+  <!-- pavimento -->
+  <path d="M0 470H720V900H0Z" fill="#0C0D14"/>
+  <path d="M0 470H720V506H0Z" fill="#161822"/>
+  <!-- fuga centrale -->
+  <path d="M356 470H364L392 900H328Z" fill="#FFFFFF" opacity=".05"/>
+  <g stroke="#FFFFFF" stroke-opacity=".045">
+    <path d="M-40 560H760M-40 672H760M-40 800H760"/>
+  </g>
+
+  <!-- pozze di luce -->
+  <ellipse cx="140" cy="640" rx="180" ry="90" fill="url(#mpOrangePool)" filter="url(#mpBlur24)"/>
+  <ellipse cx="560" cy="700" rx="200" ry="100" fill="url(#mpNeonPool)" filter="url(#mpBlur24)"/>
+
+  <!-- moto in sosta 1 (profilo frontale tre-quarti) -->
+  <g transform="translate(180 560) scale(1.05)">
+    <ellipse cx="0" cy="150" rx="120" ry="20" fill="#000" opacity=".6" filter="url(#mpBlur10)"/>
+    <circle cx="-70" cy="106" r="46" fill="#08080B"/>
+    <circle cx="-70" cy="106" r="24" fill="none" stroke="#31343E" stroke-width="7"/>
+    <circle cx="74" cy="106" r="46" fill="#08080B"/>
+    <circle cx="74" cy="106" r="24" fill="none" stroke="#31343E" stroke-width="7"/>
+    <path d="M-92 66C-86 24 -54 4 -16 4L26 -8C64 -18 98 0 110 40L114 72C98 88 76 92 52 84L8 68C-22 56 -62 66 -84 86Z" fill="#10121A"/>
+    <path d="M-92 66C-86 24 -54 4 -16 4L26 -8C64 -18 98 0 110 40" stroke="#FF7A18" stroke-width="6" stroke-linecap="round"/>
+    <path d="M64 -14C88 -22 114 -12 126 10L116 26C100 8 82 4 68 6Z" fill="#10121A"/>
+    <path d="M64 -14C88 -22 114 -12 126 10" stroke="#E7EEF8" stroke-width="6" stroke-linecap="round" opacity=".8"/>
+    <path d="M-70 96L-20 60" stroke="#2A2D38" stroke-width="14" stroke-linecap="round"/>
+    <path d="M-58 74C-38 84 -14 86 6 82" stroke="#2A2D38" stroke-width="12" stroke-linecap="round"/>
+    <circle cx="124" cy="16" r="12" fill="#FFF3D6"/>
+    <circle cx="124" cy="16" r="40" fill="#FFD9A0" opacity=".35" filter="url(#mpBlur10)"/>
+    <!-- specchietti -->
+    <path d="M96 -22L128 -52" stroke="#10121A" stroke-width="8" stroke-linecap="round"/>
+    <ellipse cx="134" cy="-58" rx="12" ry="8" fill="#1A1D28"/>
+  </g>
+
+  <!-- moto in sosta 2 (retro) -->
+  <g transform="translate(500 604) scale(.92)">
+    <ellipse cx="0" cy="146" rx="110" ry="18" fill="#000" opacity=".6" filter="url(#mpBlur10)"/>
+    <circle cx="-64" cy="104" r="42" fill="#08080B"/>
+    <circle cx="66" cy="104" r="42" fill="#08080B"/>
+    <path d="M-74 74C-70 30 -44 6 -8 6L10 0C46 -8 78 8 86 46L88 76C74 90 54 92 34 86L0 74C-28 64 -58 70 -72 88Z" fill="#0D0F16"/>
+    <path d="M-74 74C-70 30 -44 6 -8 6L10 0C46 -8 78 8 86 46" stroke="#19E6FF" stroke-width="6" stroke-linecap="round"/>
+    <!-- fanale posteriore -->
+    <rect x="-24" y="42" width="52" height="14" rx="7" fill="#FF2F2F"/>
+    <rect x="-46" y="34" width="96" height="30" rx="15" fill="#FF2F2F" opacity=".5" filter="url(#mpBlur10)"/>
+    <path d="M-10 100C6 106 24 106 40 100" stroke="#2A2D38" stroke-width="12" stroke-linecap="round"/>
+  </g>
+
+  <!-- moto in sosta 3 (laterale piccola, in fondo) -->
+  <g transform="translate(646 508) scale(.6)" opacity=".9">
+    <circle cx="-60" cy="92" r="38" fill="#08080B"/>
+    <circle cx="62" cy="92" r="38" fill="#08080B"/>
+    <path d="M-76 60C-70 22 -44 4 -12 4L18 -6C52 -14 82 2 92 36L94 64C80 78 60 80 40 74L4 62C-26 52 -56 58 -74 76Z" fill="#10121A"/>
+    <path d="M-76 60C-70 22 -44 4 -12 4L18 -6C52 -14 82 2 92 36" stroke="#FF7A18" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="98" cy="18" r="10" fill="#FFF3D6"/>
+  </g>
+
+  <!-- sagome biker -->
+  <g fill="#05060A">
+    <path d="M300 470C314 470 324 482 324 498L322 566C334 570 342 578 342 590L338 660C336 668 330 672 322 672C314 672 308 666 308 658L312 604L306 604L302 658C300 666 294 672 286 672C278 672 272 666 272 658L268 590C268 578 276 570 288 566L286 498C286 482 296 470 300 470Z"/>
+    <circle cx="300" cy="452" r="20"/>
+    <path d="M318 500L346 540C350 546 348 554 342 556C336 558 330 556 328 550L306 512Z"/>
+    <path d="M282 500L258 538C254 544 256 552 262 554C268 556 274 554 276 548L294 514Z"/>
+  </g>
+  <g fill="#05060A">
+    <path d="M430 484C443 484 452 495 452 509L450 570C461 574 468 581 468 592L464 654C462 661 457 665 450 665C443 665 437 660 437 653L441 612L436 612L432 653C431 660 425 665 418 665C411 665 406 660 405 653L401 592C401 581 408 574 419 570L417 509C417 495 426 484 430 484Z"/>
+    <circle cx="430" cy="468" r="18"/>
+    <path d="M446 512L470 546C474 551 472 558 467 560C462 562 457 560 455 555L437 524Z"/>
+    <path d="M414 512L394 544C391 549 393 556 398 558C403 560 408 558 410 553L425 528Z"/>
+  </g>
+
+  <!-- bozzoli luce residui -->
+  <g filter="url(#mpBlur4)" opacity=".6">
+    <rect x="20" y="470" width="8" height="430" fill="#FF7A18" opacity=".4"/>
+    <rect x="692" y="470" width="8" height="430" fill="#19E6FF" opacity=".35"/>
+  </g>
+
+  <rect width="720" height="900" fill="url(#mpVignette)"/>
+</svg>

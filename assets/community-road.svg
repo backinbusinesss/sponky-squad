@@ -1,0 +1,130 @@
+<svg width="720" height="900" viewBox="0 0 720 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="rdSky" x1="360" y1="0" x2="360" y2="520" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#06070F"/>
+      <stop offset=".42" stop-color="#101a33"/>
+      <stop offset=".72" stop-color="#2b3358"/>
+      <stop offset=".9" stop-color="#7a5f74"/>
+      <stop offset="1" stop-color="#d98a63"/>
+    </linearGradient>
+    <linearGradient id="rdHaze" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#FFC58F" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#FFC58F" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="rdAsphalt" x1="360" y1="430" x2="360" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1A1C24"/>
+      <stop offset="1" stop-color="#101218"/>
+    </linearGradient>
+    <linearGradient id="rdBeam" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#FF7A18" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#FFC178"/>
+      <stop offset="1" stop-color="#FF7A18" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="rdVignette">
+      <stop offset=".52" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000" stop-opacity=".72"/>
+    </radialGradient>
+    <radialGradient id="rdSun">
+      <stop stop-color="#FFF0D2" stop-opacity=".9"/>
+      <stop offset="1" stop-color="#FF9A4D" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="rdBlur20" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="20"/>
+    </filter>
+    <filter id="rdBlur8" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
+    <filter id="rdBlur3" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="3"/>
+    </filter>
+  </defs>
+
+  <!-- cielo all'alba -->
+  <rect width="720" height="900" fill="url(#rdSky)"/>
+  <circle cx="470" cy="470" r="170" fill="url(#rdSun)" filter="url(#rdBlur20)"/>
+  <g filter="url(#rdBlur8)" opacity=".5">
+    <path d="M-40 160C60 132 170 158 264 138C356 118 430 148 540 128C620 114 690 136 760 124V210H-40Z" fill="#0D1122"/>
+    <path d="M-40 268C80 244 190 272 300 252C410 232 500 262 760 240V320H-40Z" fill="#161B33"/>
+  </g>
+
+  <!-- Dolomiti: dorsali lontane -->
+  <path d="M-20 500L60 402L120 448L196 330L262 420L330 344L392 430L470 306L540 410L610 350L690 448L760 400V560H-20Z" fill="#1A2140" opacity=".95"/>
+  <!-- neve sulle creste -->
+  <g fill="#E8EEFF" opacity=".82">
+    <path d="M196 330L230 376L214 372L196 392L178 372L162 376Z"/>
+    <path d="M470 306L504 356L488 350L470 372L452 350L436 356Z"/>
+    <path d="M330 344L354 384L342 380L330 398L318 380L306 384Z"/>
+    <path d="M610 350L632 386L622 382L610 398L598 382L588 386Z"/>
+    <path d="M60 402L82 436L72 432L60 448L48 432L38 436Z"/>
+  </g>
+  <!-- foschia tra le dorsali -->
+  <g filter="url(#rdBlur20)" opacity=".55">
+    <path d="M-40 520C120 496 300 528 460 502C560 486 660 506 760 494V566H-40Z" fill="#8FA0CF" opacity=".5"/>
+  </g>
+
+  <!-- dorsale media -->
+  <path d="M-20 566L70 486L150 540L240 462L330 544L430 470L520 552L610 486L700 556L760 520V646H-20Z" fill="#11162B"/>
+  <!-- dorsale principale con bosco -->
+  <path d="M-20 640L80 570L170 626L270 552L370 630L470 566L570 636L660 584L760 640V740H-20Z" fill="#0A0E1E"/>
+  <g fill="#070A16">
+    <path d="M84 596l10 26h-20zM104 604l10 24h-20zM262 578l11 28h-22zM284 588l10 26h-20zM466 592l11 28h-22zM488 602l10 26h-20zM646 610l10 24h-20z"/>
+  </g>
+
+  <!-- valle -->
+  <path d="M-20 700C110 668 240 706 360 690C480 674 620 704 760 682V900H-20Z" fill="#0A0C16"/>
+  <g filter="url(#rdBlur8)" opacity=".5">
+    <path d="M-20 716C140 690 300 724 460 704C560 692 660 708 760 700V760H-20Z" fill="#7C88B4" opacity=".45"/>
+  </g>
+
+  <!-- strada panoramica in tornanti -->
+  <g>
+    <!-- tornante alto -->
+    <path d="M-30 648C90 616 210 640 330 612C450 584 570 604 750 574" stroke="url(#rdAsphalt)" stroke-width="44" stroke-linecap="round"/>
+    <path d="M-30 648C90 616 210 640 330 612C450 584 570 604 750 574" stroke="#EAF6FF" stroke-opacity=".4" stroke-width="4" stroke-dasharray="34 40"/>
+    <!-- tornante medio -->
+    <path d="M750 700C620 726 470 700 340 730C220 758 100 748 -30 776" stroke="url(#rdAsphalt)" stroke-width="54" stroke-linecap="round"/>
+    <path d="M750 700C620 726 470 700 340 730C220 758 100 748 -30 776" stroke="#EAF6FF" stroke-opacity=".4" stroke-width="4.5" stroke-dasharray="36 44"/>
+    <!-- tornante basso / principale -->
+    <path d="M-40 880C130 828 330 872 480 836C600 808 680 820 760 800" stroke="url(#rdAsphalt)" stroke-width="76" stroke-linecap="round"/>
+    <path d="M-40 880C130 828 330 872 480 836C600 808 680 820 760 800" stroke="#EAF6FF" stroke-opacity=".42" stroke-width="5" stroke-dasharray="44 54"/>
+    <!-- guardrail -->
+    <path d="M-30 626C90 594 210 618 330 590C450 562 570 582 750 552" stroke="#C6CCDA" stroke-opacity=".45" stroke-width="5"/>
+    <path d="M-40 842C130 790 330 834 480 798C600 770 680 782 760 762" stroke="#C6CCDA" stroke-opacity=".4" stroke-width="6"/>
+  </g>
+
+  <!-- moto in piega su tornante -->
+  <g transform="translate(452 806) rotate(-9) scale(1.15)">
+    <ellipse cx="0" cy="44" rx="74" ry="12" fill="#000" opacity=".6" filter="url(#rdBlur8)"/>
+    <circle cx="-52" cy="22" r="24" fill="#08080B"/>
+    <circle cx="-52" cy="22" r="12" fill="none" stroke="#343846" stroke-width="4"/>
+    <circle cx="50" cy="22" r="24" fill="#08080B"/>
+    <circle cx="50" cy="22" r="12" fill="none" stroke="#343846" stroke-width="4"/>
+    <path d="M-60 4C-54 -14 -34 -22 -12 -22L14 -28C34 -32 50 -24 60 -8L64 8C54 16 42 18 28 14L4 6C-12 0 -32 4 -48 14Z" fill="#0E1017"/>
+    <path d="M-60 4C-54 -14 -34 -22 -12 -22L14 -28C34 -32 50 -24 60 -8" stroke="#FF7A18" stroke-width="4.5" stroke-linecap="round"/>
+    <path d="M38 -28C52 -32 66 -26 74 -12L68 -2C58 -10 48 -12 40 -10Z" fill="#0E1017"/>
+    <path d="M-44 18C-32 24 -18 26 -4 24" stroke="#2B2F3A" stroke-width="7" stroke-linecap="round"/>
+    <!-- pilota -->
+    <path d="M-14 -28C-12 -46 0 -58 15 -58C30 -58 41 -48 43 -35L36 -24C24 -32 6 -32 -7 -24Z" fill="#090A10"/>
+    <path d="M-14 -28C-12 -46 0 -58 15 -58C30 -58 41 -48 43 -35" stroke="#FFC178" stroke-width="3.2" stroke-linecap="round"/>
+    <circle cx="45" cy="-43" r="15" fill="#090A10"/>
+    <path d="M36 -51C41 -57 49 -59 55 -56" stroke="#7FE9FF" stroke-width="4" stroke-linecap="round" opacity=".85"/>
+    <path d="M31 -37C41 -33 51 -29 60 -22" stroke="#090A10" stroke-width="11" stroke-linecap="round"/>
+    <path d="M-2 -16C-10 -8 -16 0 -20 8" stroke="#090A10" stroke-width="13" stroke-linecap="round"/>
+    <circle cx="70" cy="-14" r="7" fill="#FFF3D6"/>
+    <circle cx="70" cy="-14" r="24" fill="#FFD9A0" opacity=".4" filter="url(#rdBlur8)"/>
+  </g>
+
+  <!-- scie di luce e fari -->
+  <g filter="url(#rdBlur8)">
+    <rect x="60" y="756" width="320" height="9" rx="4.5" fill="url(#rdBeam)" opacity=".7"/>
+    <rect x="430" y="646" width="300" height="7" rx="3.5" fill="url(#rdBeam)" opacity=".55"/>
+  </g>
+
+  <!-- uccelli -->
+  <g stroke="#0B0E1C" stroke-width="3" stroke-linecap="round" opacity=".7" fill="none">
+    <path d="M540 216c6-7 12-7 17 0M557 216c6-7 12-7 17 0"/>
+    <path d="M596 254c5-6 10-6 14 0M610 254c5-6 10-6 14 0"/>
+  </g>
+
+  <rect width="720" height="900" fill="url(#rdVignette)"/>
+</svg>

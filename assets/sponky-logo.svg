@@ -1,0 +1,18 @@
+<svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sponky Squad logo placeholder">
+  <rect width="160" height="160" rx="80" fill="#050507"/>
+  <path d="M33 97C39 68 57 49 84 43C107 38 124 46 133 65C124 57 111 55 94 59C75 64 60 76 49 97H33Z" fill="#FF7A18"/>
+  <path d="M42 103C56 76 76 63 103 63C119 63 130 68 137 78C128 75 116 76 103 81C87 87 75 96 68 108H42V103Z" fill="#19E6FF"/>
+  <path d="M48 109H116C106 121 91 128 73 128C61 128 52 122 48 109Z" fill="#E7EEF8"/>
+  <circle cx="110" cy="92" r="9" fill="#050507"/>
+  <circle cx="110" cy="92" r="4" fill="#FF2F2F"/>
+  <path d="M55 88L73 78H99L84 90H55Z" fill="#050507" fill-opacity=".82"/>
+  <path d="M51 39L70 53M111 37L101 56" stroke="#FF7A18" stroke-width="9" stroke-linecap="round"/>
+  <circle cx="80" cy="80" r="70" stroke="url(#paint0_linear)" stroke-width="4"/>
+  <defs>
+    <linearGradient id="paint0_linear" x1="20" y1="20" x2="141" y2="139" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF7A18"/>
+      <stop offset=".52" stop-color="#FF2F2F"/>
+      <stop offset="1" stop-color="#19E6FF"/>
+    </linearGradient>
+  </defs>
+</svg>
