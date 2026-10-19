@@ -3,8 +3,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
 import { Suspense, useMemo, useRef } from "react";
 import * as THREE from "three";
-import { SuperbikeModel } from "@/three/SuperbikeModel";
-
+import { HellcatModel } from "@/three/HellcatModel";
 function RoadPlane() {
   const mesh = useRef<THREE.Mesh>(null);
   const texture = useMemo(() => {
@@ -149,7 +148,7 @@ export function BikeScene() {
         <DynamicLights />
         <WarmHalo />
         <RoadPlane />
-        <SuperbikeModel />
+        <HellcatModel />
         <Environment preset="sunset" environmentIntensity={0.85} />
         <EffectComposer multisampling={0} enableNormalPass={false}>
           <Bloom luminanceThreshold={0.34} intensity={0.4} mipmapBlur />
