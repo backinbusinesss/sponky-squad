@@ -12,6 +12,10 @@ export const SAMPLE_MEMBERSHIP = {
   first_name: "Marco",
   last_name: "Rossi",
   email: "marco.rossi@example.com",
+  // Il form vero chiede anche la password: senza, il test si fermerebbe su
+  // "almeno 8 caratteri" e non proverebbe la strada buona. Non viene mai
+  // scritta da nessuna parte: la risposta la rimuove prima di uscire.
+  password: "SponkyDemo2026!",
   cap: "20121",
   age_range: "25-35",
   group_name: "Gli Sbiellati",

@@ -92,9 +92,9 @@ export default async function handler(req, res) {
     tv: user.token_version,
     admin: false,
   });
-  setSessionCookies(res, token);
+  const csrfToken = setSessionCookies(res, token);
 
-  return json(req, res, 201, { ok: true, user: publicUser(user) });
+  return json(req, res, 201, { ok: true, csrfToken, user: publicUser(user) });
 }
 
 /**

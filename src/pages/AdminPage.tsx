@@ -1,13 +1,16 @@
 import { useCallback, useEffect, useState } from "react";
-import { Building2, Check, Loader2, RefreshCw, Search, TestTube2, UserCheck, UserX, X, Eye, EyeOff, LayoutDashboard, Users, Handshake, BarChart3, Shield, LogOut } from "lucide-react";
+import { Building2, CalendarDays, Check, HelpCircle, Loader2, RefreshCw, Search, Store, TestTube2, UserCheck, UserX, X, Eye, EyeOff, LayoutDashboard, Users, Handshake, BarChart3, Shield, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MemberCard } from "@/components/MemberCard";
+import { EventsAdminSection } from "@/components/admin/EventsAdmin";
+import { FaqAdminSection } from "@/components/admin/FaqAdmin";
+import { PartnersAdminSection } from "@/components/admin/PartnersAdmin";
 import { useAuth } from "@/lib/auth-context";
 import { api, ApiError, type MemberCard as CardData, type PublicUser } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
-type Section = "users" | "partners" | "stats";
+type Section = "users" | "events" | "faq" | "partnerContent" | "partners" | "stats";
 
 export function AdminPage() {
   const { status, user, logout } = useAuth();
@@ -49,6 +52,9 @@ export function AdminPage() {
 
           <nav className="grid gap-1" aria-label="Navigazione admin">
             <SideLink active={section === "users"} onClick={() => setSection("users")} icon={<Users className="h-5 w-5" />} label="Utenti" />
+            <SideLink active={section === "events"} onClick={() => setSection("events")} icon={<CalendarDays className="h-5 w-5" />} label="Eventi" />
+            <SideLink active={section === "faq"} onClick={() => setSection("faq")} icon={<HelpCircle className="h-5 w-5" />} label="Domande" />
+            <SideLink active={section === "partnerContent"} onClick={() => setSection("partnerContent")} icon={<Store className="h-5 w-5" />} label="Partner" />
             <SideLink active={section === "partners"} onClick={() => setSection("partners")} icon={<Handshake className="h-5 w-5" />} label="Richieste partner" />
             <SideLink active={section === "stats"} onClick={() => setSection("stats")} icon={<BarChart3 className="h-5 w-5" />} label="Statistiche" />
           </nav>
@@ -75,7 +81,10 @@ export function AdminPage() {
             </div>
             <nav className="mt-3 flex gap-2 overflow-x-auto">
               <Pill active={section === "users"} onClick={() => setSection("users")}>Utenti</Pill>
-              <Pill active={section === "partners"} onClick={() => setSection("partners")}>Partner</Pill>
+              <Pill active={section === "events"} onClick={() => setSection("events")}>Eventi</Pill>
+              <Pill active={section === "faq"} onClick={() => setSection("faq")}>Domande</Pill>
+              <Pill active={section === "partnerContent"} onClick={() => setSection("partnerContent")}>Partner</Pill>
+              <Pill active={section === "partners"} onClick={() => setSection("partners")}>Richieste</Pill>
               <Pill active={section === "stats"} onClick={() => setSection("stats")}>Stats</Pill>
             </nav>
           </header>
@@ -89,6 +98,9 @@ export function AdminPage() {
 
             <section className="rounded-2xl border border-white/10 bg-asphalt-900/40 p-6 lg:p-8">
               {section === "users" ? <UsersSection /> : null}
+              {section === "events" ? <EventsAdminSection /> : null}
+              {section === "faq" ? <FaqAdminSection /> : null}
+              {section === "partnerContent" ? <PartnersAdminSection /> : null}
               {section === "partners" ? <PartnersSection /> : null}
               {section === "stats" ? <StatsSection /> : null}
             </section>

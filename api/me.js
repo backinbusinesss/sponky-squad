@@ -1,5 +1,5 @@
 ﻿import { sql, json, handleCors } from "./_lib/http.js";
-import { getSession, clearSessionCookies } from "./_lib/auth.js";
+import { getSession, clearSessionCookies, currentCsrf } from "./_lib/auth.js";
 
 export default async function handler(req, res) {
   if (handleCors(req, res)) return;
@@ -35,6 +35,7 @@ export default async function handler(req, res) {
   }
 
   return json(req, res, 200, {
+    csrfToken: currentCsrf(req),
     user: {
       id: user.id,
       firstName: user.first_name,

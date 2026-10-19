@@ -23,15 +23,32 @@ function url(path: string) {
 }
 
 /**
- * Legge il cookie CSRF non-HttpOnly.
+ * Token CSRF, tenuto in memoria.
  *
- * Il server lo imposte appena si apre una sessione. Va rimandato nell'header
- * X-CSRF-Token: è la prova che chi fa la richiesta può anche leggere il cookie,
- * quindi non è un sito terzo che la sta inoltrando.
+ * Il sito vive su github.io e l'API su vercel.app: sono origini diverse, e
+ * `document.cookie` sul sito non vede i cookie dell'API. Il token arriva
+ * quindi nel corpo delle risposte di accesso (login, registrazione, /api/me) e
+ * resta qui. La lettura del cookie resta come rete di sicurezza per quando
+ * front e API condividono l'origine (sviluppo locale).
+ *
+ * Va rimandato nell'header X-CSRF-Token: insieme al cookie è la prova che la
+ * richiesta parte dal nostro front e non da un sito terzo.
  */
-function readCsrf(): string {
+let csrfToken = "";
+
+function readCsrfFromCookie(): string {
   const match = document.cookie.match(/(?:^|;\s*)sponky_csrf=([^;]+)/);
   return match ? decodeURIComponent(match[1]) : "";
+}
+
+function csrf(): string {
+  return csrfToken || readCsrfFromCookie();
+}
+
+/** Tiene il token dalle risposte che lo contengono (le altre non lo hanno). */
+function rememberCsrf(payload: unknown) {
+  const value = (payload as { csrfToken?: unknown } | null)?.csrfToken;
+  if (typeof value === "string" && value) csrfToken = value;
 }
 
 export class ApiError extends Error {
@@ -57,12 +74,12 @@ interface RequestOptions {
  * senza, il server risponde 403 prima ancora di guardare il corpo. Questo copre
  * sia CSRF sia il caso in cui un utente loggato visiti un link malevolo.
  */
-async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+async function send<T>(path: string, options: RequestOptions): Promise<T> {
   const method = options.method ?? "GET";
   const headers: Record<string, string> = {};
 
   if (options.body !== undefined) headers["Content-Type"] = "application/json";
-  if (method !== "GET") headers["X-CSRF-Token"] = readCsrf();
+  if (method !== "GET") headers["X-CSRF-Token"] = csrf();
 
   let response: Response;
   try {
@@ -97,7 +114,44 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     );
   }
 
+  rememberCsrf(data);
   return data as T;
+}
+
+/**
+ * Chiamata centrale a ogni endpoint.
+ *
+ * Le richieste che mutano stato (POST/PATCH/DELETE) mandano sempre l'header
+ * CSRF: senza, il server risponde 403 prima ancora di guardare il corpo.
+ *
+ * Se il token in memoria e' vecchio (per esempio un'altra scheda ha riaperto la
+ * sessione) il server risponde 403: si riallinea una volta sola e si riprova,
+ * cosi' all'utente non arriva un errore che si risolverebbe ricaricando.
+ */
+async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  try {
+    return await send<T>(path, options);
+  } catch (error) {
+    const method = options.method ?? "GET";
+    if (error instanceof ApiError && error.status === 403 && method !== "GET") {
+      if (await syncCsrf()) return await send<T>(path, options);
+    }
+    throw error;
+  }
+}
+
+/** Rilegge il token CSRF dalla sessione in corso. false se non c'e' sessione. */
+async function syncCsrf(): Promise<boolean> {
+  try {
+    const response = await fetch(url("/api/me"), { credentials: "include" });
+    if (!response.ok) return false;
+    const data = (await response.json()) as { csrfToken?: unknown };
+    if (typeof data?.csrfToken !== "string" || !data.csrfToken) return false;
+    csrfToken = data.csrfToken;
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export interface PublicUser {
@@ -128,6 +182,49 @@ export interface MemberCard {
   discountInterests: string[];
   cap: string;
   issuedAt: string;
+}
+
+/** Contenuti gestiti dalla dashboard: eventi, domande e catalogo partner. */
+export interface ContentEvent {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  location: string;
+  graphicId: string;
+  linkUrl: string | null;
+  linkText: string | null;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface ContentFaq {
+  id: string;
+  question: string;
+  answer: string;
+  sortOrder: number;
+  isActive: boolean;
+}
+
+export interface ContentPartner {
+  id: string;
+  title: string;
+  imageUrl: string | null;
+  description: string;
+  location: string;
+  tags: string[];
+  sortOrder: number;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export type ContentType = "events" | "faq" | "partners";
+
+export interface SiteContent {
+  admin: boolean;
+  events: ContentEvent[];
+  faqs: ContentFaq[];
+  partners: ContentPartner[];
 }
 
 export interface RegistrationInput {
@@ -232,5 +329,28 @@ export const api = {
       errors: Record<string, string> | null;
       account: Record<string, unknown> | null;
       card: MemberCard | null;
-    }>("/api/admin/test-registration", { method: "POST", body: overrides }),
+    }>("/api/content?action=test", { method: "POST", body: overrides }),
+
+  /**
+   * Contenuti del sito. Senza sessione admin arrivano solo gli elementi
+   * attivi: e' la stessa chiamata che alimenta le sezioni pubbliche.
+   */
+  content: () => request<SiteContent>("/api/content"),
+
+  adminCreateContent: (type: ContentType, body: Record<string, unknown>) =>
+    request<{ ok: true; item: ContentEvent | ContentFaq | ContentPartner }>(
+      `/api/content?type=${type}`,
+      { method: "POST", body },
+    ),
+
+  adminUpdateContent: (type: ContentType, id: string, body: Record<string, unknown>) =>
+    request<{ ok: true; item: ContentEvent | ContentFaq | ContentPartner }>(
+      `/api/content?type=${type}&id=${encodeURIComponent(id)}`,
+      { method: "PATCH", body },
+    ),
+
+  adminDeleteContent: (type: ContentType, id: string) =>
+    request<{ ok: true }>(`/api/content?type=${type}&id=${encodeURIComponent(id)}`, {
+      method: "DELETE",
+    }),
 };

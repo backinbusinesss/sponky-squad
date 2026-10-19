@@ -72,10 +72,11 @@ export default async function handler(req, res) {
     tv: user.token_version,
     admin: Boolean(user.is_admin),
   });
-  setSessionCookies(res, token);
+  const csrfToken = setSessionCookies(res, token);
 
   return json(req, res, 200, {
     ok: true,
+    csrfToken,
     user: {
       id: user.id,
       firstName: user.first_name,

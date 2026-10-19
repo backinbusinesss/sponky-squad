@@ -80,3 +80,21 @@ export const GROUP_NAMES = [
 
 export const CARD_MIN = 2;
 export const CARD_MAX = 999;
+
+/**
+ * I 10 tag possibili per i partner del catalogo.
+ * Stessa lista di `api/_lib/options.js`: il backend validà ogni tag
+ * contro la sua copia prima di salvarlo.
+ */
+export const PARTNER_TAGS = [
+  "Moto care",
+  "Accessori",
+  "Food",
+  "Pista",
+  "Community",
+  "Servizi",
+  "Officina",
+  "Abbigliamento",
+  "Assicurazioni",
+  "Intrattenimento",
+] as const;

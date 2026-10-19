@@ -80,6 +80,24 @@ export const GROUP_NAMES = [
 export const CARD_MIN = 2;
 export const CARD_MAX = 999;
 
+/**
+ * I 10 tag possibili per i partner del catalogo.
+ * Lista a doppio filo: il backend invalida qualsiasi tag fuori da qui, quindi
+ * un valore sparso non puo' finire nel database nemmeno passando dalla API.
+ */
+export const PARTNER_TAGS = [
+  "Moto care",
+  "Accessori",
+  "Food",
+  "Pista",
+  "Community",
+  "Servizi",
+  "Officina",
+  "Abbigliamento",
+  "Assicurazioni",
+  "Intrattenimento",
+];
+
 /** Messaggi di errore del login, in tono da pilota. */
 export const LOGIN_ERRORS = [
   "Curva sbagliata, riprova!",

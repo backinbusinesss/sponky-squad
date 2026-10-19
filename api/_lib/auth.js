@@ -68,14 +68,33 @@ export function verifySession(token) {
   }
 }
 
+/**
+ * Apre la sessione: cookie HttpOnly con il token, piu' il cookie CSRF.
+ *
+ * Ritorna il valore CSRF perche' il chiamante lo metta anche nel corpo della
+ * risposta. Serve: il sito sta su github.io e l'API su vercel.app, quindi
+ * `document.cookie` sul sito NON vede i cookie dell'API (appartengono a
+ * un'altra origine). Il front tiene il token in memoria e lo rimanda
+ * nell'header; il cookie resta la prova che il browser lo possiede davvero.
+ */
 export function setSessionCookies(res, token) {
+  const csrf = makeCsrfToken();
   res.setHeader("Set-Cookie", [
     serializeCookie(SESSION_COOKIE, token, COOKIE_BASE),
-    // il cookie CSRF e' l'unico NON httpOnly: il front lo deve leggere per
-    // rimandarlo indietro nell'header. Non e' un segreto da solo, serve solo
-    // a provare che chi invia la richiesta puo' anche leggere il cookie.
-    serializeCookie(CSRF_COOKIE, makeCsrfToken(), { ...COOKIE_BASE, httpOnly: false }),
+    // unico cookie NON httpOnly: non e' un segreto da solo, serve a provare
+    // che chi invia la richiesta puo' anche leggere il cookie.
+    serializeCookie(CSRF_COOKIE, csrf, { ...COOKIE_BASE, httpOnly: false }),
   ]);
+  return csrf;
+}
+
+/**
+ * Token CSRF della sessione in corso, da rimandare al front che lo chiede
+ * (per esempio dopo un ricaricamento di pagina, quando la memoria del
+ * browser e' vuota ma i cookie ci sono ancora).
+ */
+export function currentCsrf(req) {
+  return readCookie(req, CSRF_COOKIE) ?? "";
 }
 
 export function clearSessionCookies(res) {

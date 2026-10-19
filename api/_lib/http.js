@@ -59,7 +59,7 @@ export function corsHeaders(req) {
     // perche' un echo cieco + credenziali = qualsiasi sito puo' leggere la risposta
     ...(ALLOWED_ORIGINS.has(origin) ? { "Access-Control-Allow-Origin": origin } : {}),
     "Access-Control-Allow-Credentials": "true",
-    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+    "Access-Control-Allow-Methods": "GET,POST,PATCH,DELETE,OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, X-CSRF-Token",
     "Access-Control-Max-Age": "86400",
     Vary: "Origin",
